@@ -4,7 +4,7 @@
 *.lo
 *.o
 *.obj
-
+cmake-build-debug
 # Precompiled Headers
 *.gch
 *.pch
