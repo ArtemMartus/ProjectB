@@ -27,7 +27,7 @@ void PViewSide::renderFigures(PCheckboard *board) {
 	for (int j = 0; j < 8; j++) {
 		cout << setw(6) << j;
 	}
-	cout << "\n     ––––––––––––––––––––––––––––––––––––––––––––––––\n";
+	cout << "\n     -------------------------------------------------\n";
 	for (int i = 7; i >= 0; i--) {
 		cout << i << "  |";
 		for (int j = 0; j < 8; j++) {
@@ -39,7 +39,7 @@ void PViewSide::renderFigures(PCheckboard *board) {
 				ch = figure->asChar();
 			cout << setw(6) << ch;
 		}
-		cout << "   |  " << i << "\n     ––––––––––––––––––––––––––––––––––––––––––––––––\n";
+		cout << "   |  " << i << "\n     -------------------------------------------------\n";
 	}
 	cout << "    ";
 	for (int j = 0; j < 8; j++) {

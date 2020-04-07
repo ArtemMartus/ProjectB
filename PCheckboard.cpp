@@ -21,6 +21,13 @@
 #include "PFigure.h"
 #include "PPoint.h"
 #include <list>
+#include <stdexcept>
+
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
+
+#define arc4random_uniform(x) rand()%x
+
+#endif
 
 using namespace std;
 
@@ -403,7 +410,7 @@ std::list<PPoint *> PCheckboard::buildBishopPath(PFigure *figure) {
 std::list<PPoint *> PCheckboard::buildKingPath(PFigure *figure) {
 	BUILD_PATH_INTRO
 
-	
+
 	addOrDie(new PPoint(x + 1, y));
 	addOrDie(new PPoint(x - 1, y));
 

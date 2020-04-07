@@ -22,7 +22,7 @@ cmake-build-debug
 *.la
 *.a
 *.lib
-
+.DS_Store
 # Executables
 *.exe
 *.out

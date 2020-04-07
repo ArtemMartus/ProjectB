@@ -12,6 +12,12 @@
 #include <cstdlib>
 #include <list>
 
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
+
+#define arc4random_uniform(x) rand()%x
+
+#endif
+
 using std::string;
 using std::list;
 
