@@ -5,7 +5,17 @@
 #define BUILD_PATH_INTRO if (!figure) throw invalid_argument("Cannot build path for null pointer");\
                         list<PPoint *> path;\
                         int x = figure->getPoint()->getX(), y = figure->getPoint()->getY();\
-                        auto side = figure->getPlayer();
+                        auto side = figure->getPlayer(); \
+                        auto addOrDie = [&path, side, this](PPoint *p, bool pawnMode = false) {\
+	                        if (canGo(p) && allowsNext(p, side, pawnMode)) {\
+		                        path.push_back(p);\
+		                        return true;\
+	                        } else\
+		                        delete p;\
+	                        return false;\
+                        };\
+
+
 
 #include "PCheckboard.h"
 #include "PFigure.h"
@@ -259,15 +269,6 @@ bool PCheckboard::canGo(PPoint *p) {
 
 std::list<PPoint *> PCheckboard::buildPawnPath(PFigure *figure) {
 	BUILD_PATH_INTRO
-	auto addOrDie = [&path, side, this](PPoint *p, bool pawnMode = false) {
-		if (canGo(p) && allowsNext(p, side, pawnMode)) {
-			path.push_back(p);
-			return true;
-		} else {
-			delete p;
-		}
-		return false;
-	};
 
 	if (side == PFigure::Player::Whites) {
 		addOrDie(new PPoint(x, y + 1));
@@ -289,14 +290,6 @@ std::list<PPoint *> PCheckboard::buildPawnPath(PFigure *figure) {
 
 std::list<PPoint *> PCheckboard::buildKnightPath(PFigure *figure) {
 	BUILD_PATH_INTRO
-	auto addOrDie = [&path, side, this](PPoint *p, bool pawnMode = false) {
-		if (canGo(p) && allowsNext(p, side, pawnMode)) {
-			path.push_back(p);
-			return true;
-		} else
-			delete p;
-		return false;
-	};
 
 	/// to the right
 	addOrDie(new PPoint(x + 2, y + 1));
@@ -319,14 +312,8 @@ std::list<PPoint *> PCheckboard::buildKnightPath(PFigure *figure) {
 
 std::list<PPoint *> PCheckboard::buildRookPath(PFigure *figure) {
 	BUILD_PATH_INTRO
-	auto addOrDie = [&path, side, this](PPoint *p, bool pawnMode = false) {
-		if (canGo(p) && allowsNext(p, side, pawnMode)) {
-			path.push_back(p);
-			return true;
-		} else
-			delete p;
-		return false;
-	};
+
+
 	/// to the right
 	for (int i = x + 1; i < 8; ++i) {
 		auto p = new PPoint(i, y);
@@ -364,14 +351,7 @@ std::list<PPoint *> PCheckboard::buildRookPath(PFigure *figure) {
 
 std::list<PPoint *> PCheckboard::buildBishopPath(PFigure *figure) {
 	BUILD_PATH_INTRO
-	auto addOrDie = [&path, side, this](PPoint *p, bool pawnMode = false) {
-		if (canGo(p) && allowsNext(p, side, pawnMode)) {
-			path.push_back(p);
-			return true;
-		} else
-			delete p;
-		return false;
-	};
+
 	bool good = true;
 	/// to the right-top
 	for (int i = x + 1, j = y + 1; j < 8 && i < 8 && good; ++i, ++j) {
@@ -422,14 +402,8 @@ std::list<PPoint *> PCheckboard::buildBishopPath(PFigure *figure) {
 
 std::list<PPoint *> PCheckboard::buildKingPath(PFigure *figure) {
 	BUILD_PATH_INTRO
-	auto addOrDie = [&path, side, this](PPoint *p, bool pawnMode = false) {
-		if (canGo(p) && allowsNext(p, side, pawnMode)) {
-			path.push_back(p);
-			return true;
-		} else
-			delete p;
-		return false;
-	};
+
+	
 	addOrDie(new PPoint(x + 1, y));
 	addOrDie(new PPoint(x - 1, y));
 
