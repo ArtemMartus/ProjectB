@@ -65,6 +65,13 @@ int PViewSide::askForAction(bool whitesTurn, const list<string> &actions) {
 int PViewSide::inputAction(int lowBounds, int highBounds) {
 	int i = -1;
 	cin >> i;
+	while (!cin.good())
+	{
+		cin.clear();
+		cin.ignore(INT_MAX, '\n');
+		cerr << "Please make sure you are typing number, try again: ";
+		cin >> i;
+	}
 	if (i < lowBounds || i > highBounds) {
 		cerr << "Wrong input, try number between " << lowBounds << " and " << highBounds << endl;
 		return inputAction(lowBounds, highBounds);

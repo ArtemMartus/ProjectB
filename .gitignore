@@ -8,6 +8,7 @@ cmake-build-debug
 # Precompiled Headers
 *.gch
 *.pch
+.idea
 
 # Compiled Dynamic libraries
 *.so
