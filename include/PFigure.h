@@ -20,10 +20,10 @@ class PFigure {
 	PFigure *killedBy;
 	FigurePlayer player;
 	FigureType type;
-	unsigned int movesMade = 0;
+	unsigned int movesMade;
 
 public:
-	PFigure(PPoint *point, FigureType type, FigurePlayer player);
+	PFigure(PPoint *point, FigureType type, FigurePlayer player, unsigned int movesMade = 0);
 
 	explicit PFigure(const PFigure *figure);
 

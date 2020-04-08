@@ -7,14 +7,14 @@
 #include "PFigure.h"
 #include "PPoint.h"
 
-PFigure::PFigure(PPoint *a, FigureType b, FigurePlayer c)
-		: position(a), type(b), player(c), killedBy(nullptr) {
+PFigure::PFigure(PPoint *a, FigureType b, FigurePlayer c, unsigned int moves)
+		: position(a), type(b), player(c), killedBy(nullptr), movesMade(moves) {
 	if (a == nullptr) throw std::invalid_argument("Figure must have its place!");
 }
 
 PFigure::PFigure(const PFigure *figure)
 		: position(new PPoint(figure->position)), type(figure->type),
-		  player(figure->player), killedBy(nullptr) {
+		  player(figure->player), killedBy(nullptr), movesMade(figure->movesMade) {
 	if (figure->killedBy) {
 		killedBy = new PFigure(figure->killedBy);
 	}

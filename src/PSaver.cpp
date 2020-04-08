@@ -49,7 +49,8 @@ string PSaver::dumpPFigure(PFigure *fig) {
 	stream << fig->getPlayer()
 	       << " " << fig->getType()
 	       << " " << fig->getPoint()->getX()
-	       << " " << fig->getPoint()->getY();
+	       << " " << fig->getPoint()->getY()
+	       << " " << fig->getMovesCount();
 
 	if (fig->isAlive())
 		stream << " " << -1;
@@ -63,7 +64,7 @@ PFigure *PSaver::restorePFigure(const std::string &data) {
 	istringstream stream(data);
 	auto player = FigurePlayer::Whites;
 	auto type = FigureType::Pawn;
-	unsigned int x = 0, y = 0;
+	unsigned int x = 0, y = 0, moves = 0;
 
 	int i = 0;
 
@@ -71,15 +72,13 @@ PFigure *PSaver::restorePFigure(const std::string &data) {
 	player = static_cast<FigurePlayer>(i);
 	stream >> i;
 	type = static_cast<FigureType>(i);
-	stream >> x >> y; // i indicates -1 = alive, 1 = killed by ...
-
-	stream >> i;
+	stream >> x >> y >> moves >> i; // i indicates -1 = alive, 1 = killed by ...
 
 	if (!stream.eof() && stream.fail())  // stream failed to read int data
 		throw runtime_error("Got bad formatted savefile");
 
 
-	auto figure = new PFigure(new PPoint(x, y), type, player);
+	auto figure = new PFigure(new PPoint(x, y), type, player, moves);
 
 	if (i == 1) {
 		string data2;
