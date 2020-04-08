@@ -77,6 +77,7 @@ bool PCheckboard::move(PPoint *from, PPoint *to) {
 
 	figure->getPoint()->setX(to->getX());
 	figure->getPoint()->setY(to->getY());
+	figure->moved();
 
 	if (possibleFigure) {
 		possibleFigure->kill(figure);
@@ -275,14 +276,14 @@ std::list<PPoint *> PCheckboard::buildPawnPath(PFigure *figure) {
 		addOrDie(new PPoint(x, y + 1));
 		addOrDie(new PPoint(x + 1, y + 1), true);
 		addOrDie(new PPoint(x - 1, y + 1), true);
-		if (y == 1)
+		if (figure->getMovesCount() == 0)
 			addOrDie(new PPoint(x, y + 2));
 
 	} else {
 		addOrDie(new PPoint(x, y - 1));
 		addOrDie(new PPoint(x + 1, y - 1), true);
 		addOrDie(new PPoint(x - 1, y - 1), true);
-		if (y == 6)
+		if (figure->getMovesCount() == 0)
 			addOrDie(new PPoint(x, y - 2));
 	}
 	return path;

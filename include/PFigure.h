@@ -20,6 +20,7 @@ class PFigure {
 	PFigure *killedBy;
 	FigurePlayer player;
 	FigureType type;
+	unsigned int movesMade = 0;
 
 public:
 	PFigure(PPoint *point, FigureType type, FigurePlayer player);
@@ -44,6 +45,9 @@ public:
 
 	PFigure *getKilledBy() const;
 
+	void moved();
+
+	unsigned int getMovesCount() const;
 };
 
 

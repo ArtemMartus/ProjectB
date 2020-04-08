@@ -89,3 +89,11 @@ void PFigure::revive() {
 	delete killedBy;
 	killedBy = nullptr;
 }
+
+unsigned int PFigure::getMovesCount() const {
+	return movesMade;
+}
+
+void PFigure::moved() {
+	++movesMade;
+}
