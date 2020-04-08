@@ -58,7 +58,7 @@ bool PGame::run() {
 
 				PPoint *to = view->getPoint("Enter point to where we move: (0-7 0-7)");
 				auto possibleFigure = checkboard->at(to);
-				while (!checkboard->move(from, to)) {
+				while (!checkboard->prepareMove(from, to)) {
 					delete to;
 					view->renderText("Cannot move to that point! try another");
 					to = view->getPoint("to where we move: (0-7 0-7)");

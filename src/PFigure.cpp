@@ -97,3 +97,31 @@ unsigned int PFigure::getMovesCount() const {
 void PFigure::moved() {
 	++movesMade;
 }
+
+bool PFigure::readyForCastling() const {
+	return isAlive() && movesMade == 0 && (type == FigureType::Rook || type == FigureType::King);
+}
+
+bool PFigure::isPawn() const {
+	return type == FigureType::Pawn;
+}
+
+bool PFigure::isRook() const {
+	return type == FigureType::Rook;
+}
+
+bool PFigure::isKnight() const {
+	return type == FigureType::Knight;
+}
+
+bool PFigure::isBishop() const {
+	return type == FigureType::Bishop;
+}
+
+bool PFigure::isQueen() const {
+	return type == FigureType::Queen;
+}
+
+bool PFigure::isKing() const {
+	return type == FigureType::King;
+}

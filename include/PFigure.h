@@ -37,6 +37,20 @@ public:
 
 	bool isAlive() const;
 
+	bool readyForCastling() const;
+
+	bool isPawn() const;
+
+	bool isRook() const;
+
+	bool isKnight() const;
+
+	bool isBishop() const;
+
+	bool isQueen() const;
+
+	bool isKing() const;
+
 	FigureType getType() const;
 
 	FigurePlayer getPlayer() const;

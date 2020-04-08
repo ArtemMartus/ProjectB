@@ -44,7 +44,7 @@ PFigure *PCheckboard::at(PPoint *point) {
 	return nullptr;
 }
 
-bool PCheckboard::move(PPoint *from, PPoint *to) {
+bool PCheckboard::prepareMove(PPoint *from, PPoint *to) {
 	// check initial arguments
 	if (!from || !to) throw std::invalid_argument("Cannot move null pointer to another position");
 	// recheck checkbox for ally figure
@@ -57,51 +57,39 @@ bool PCheckboard::move(PPoint *from, PPoint *to) {
 	if (!figure)
 		return false;
 	// make aliases for readability
-	auto possibleFigure = at(to);
 	const auto side = figure->getPlayer();
 	const auto type = figure->getType();
-
-	// check if both points have different player figures
-	if (possibleFigure && possibleFigure->getPlayer() == side) return false;
 
 	list<PPoint *> possibleMoves = buildPath(figure);
 
 	// after we got path we perform actual movement if final point is on path
 	bool finalOnPath = false;
 	for (auto i: possibleMoves)
-		if (to->isEquals(i)) {
+		if (to->isEquals(i)) { /// cannot use std::find because we need isEquals method
 			finalOnPath = true;
 			break;
 		}
 	if (!finalOnPath) return false;
 
-	figure->getPoint()->setX(to->getX());
-	figure->getPoint()->setY(to->getY());
-	figure->moved();
-
-	if (possibleFigure) {
-		possibleFigure->kill(figure);
-		m_board.remove(possibleFigure);
-		m_deadFigures.push_back(possibleFigure);
-	}
+	performMovement(figure, to);
 
 	// after the movement we update board figures if needed and check special morphs for pawns
 	if (type == FigureType::Pawn && !m_deadFigures.empty()) {
 		int endY = side == FigurePlayer::Whites ? 7 : 0;
 		if (to->getY() == endY) {
-			int random_i = rand() % m_deadFigures.size();
 			PFigure *undead = nullptr;
-			int temp = 0;
+			int temp = -1; // get the most valuable from dead list
 			for (auto i: m_deadFigures) {
-				if (temp == random_i) {
+				if (i->getPlayer() != side) continue;
+				if (i->getType() > temp) {
 					undead = i;
-					break;
+					temp = i->getType();
 				}
-				temp++;
 			}
-			if (!undead) throw invalid_argument("random generator broken");
+			if (!undead) throw invalid_argument("couldn't choose from dead figures");
 
 			undead->revive();
+			undead->moved();
 			undead->getPoint()->setX(to->getX());
 			undead->getPoint()->setY(to->getY());
 			m_deadFigures.remove(undead);
@@ -133,51 +121,44 @@ bool PCheckboard::onePlayerLeft() const {
 void PCheckboard::initialize() {
 	if (!m_board.empty() || !m_deadFigures.empty())
 		destroy();
+	auto blacks = buildSide(FigurePlayer::Blacks);
+	auto whites = buildSide(FigurePlayer::Whites);
 
+	m_board.splice(m_board.end(), whites);
+	m_board.splice(m_board.end(), blacks);
+}
+
+list<PFigure *> PCheckboard::buildSide(FigurePlayer side) {
+	list<PFigure *> figures;
 	// chessboard consists of 8x8 squares
-	auto side = FigurePlayer::Whites;
+	auto y = side == FigurePlayer::Whites ? 7 : 0; // 7 for whites, 0 for blacks
+	auto pawnY = side == FigurePlayer::Whites ? 1 : 6;
 
 	/// 8 pawns
 	for (int i = 0; i < 8; i++) {
-		auto point = new PPoint(i, 1);
-		auto pawns = new PFigure(point, FigureType::Pawn, side);
-		m_board.push_back(pawns);
+		auto pawns = new PFigure(new PPoint(i, pawnY), FigureType::Pawn, side);
+		figures.push_back(pawns);
 	}
 
 	/// 2 rooks
-	m_board.push_back(new PFigure(new PPoint(0, 0), FigureType::Rook, side));
-	m_board.push_back(new PFigure(new PPoint(7, 0), FigureType::Rook, side));
+	figures.push_back(new PFigure(new PPoint(0, 7 - y), FigureType::Rook, side));
+	figures.push_back(new PFigure(new PPoint(7, 7 - y), FigureType::Rook, side));
 
 	/// 2 knights
-	m_board.push_back(new PFigure(new PPoint(1, 0), FigureType::Knight, side));
-	m_board.push_back(new PFigure(new PPoint(6, 0), FigureType::Knight, side));
+	figures.push_back(new PFigure(new PPoint(1, 7 - y), FigureType::Knight, side));
+	figures.push_back(new PFigure(new PPoint(6, 7 - y), FigureType::Knight, side));
 
 	/// 2 bishops
-	m_board.push_back(new PFigure(new PPoint(2, 0), FigureType::Bishop, side));
-	m_board.push_back(new PFigure(new PPoint(5, 0), FigureType::Bishop, side));
+	figures.push_back(new PFigure(new PPoint(2, 7 - y), FigureType::Bishop, side));
+	figures.push_back(new PFigure(new PPoint(5, 7 - y), FigureType::Bishop, side));
 
 	/// one queen
-	m_board.push_back(new PFigure(new PPoint(3, 0), FigureType::Queen, side));
+	figures.push_back(new PFigure(new PPoint(3, 7 - y), FigureType::Queen, side));
 
 	/// one king
-	m_board.push_back(new PFigure(new PPoint(4, 0), FigureType::King, side));
+	figures.push_back(new PFigure(new PPoint(4, 7 - y), FigureType::King, side));
 
-	/// and the same for the other side
-	side = FigurePlayer::Blacks;
-
-	for (int i = 0; i < 8; i++) {
-		auto point = new PPoint(i, 6);
-		auto pawns = new PFigure(point, FigureType::Pawn, side);
-		m_board.push_back(pawns);
-	}
-	m_board.push_back(new PFigure(new PPoint(0, 7), FigureType::Rook, side));
-	m_board.push_back(new PFigure(new PPoint(7, 7), FigureType::Rook, side));
-	m_board.push_back(new PFigure(new PPoint(1, 7), FigureType::Knight, side));
-	m_board.push_back(new PFigure(new PPoint(6, 7), FigureType::Knight, side));
-	m_board.push_back(new PFigure(new PPoint(2, 7), FigureType::Bishop, side));
-	m_board.push_back(new PFigure(new PPoint(5, 7), FigureType::Bishop, side));
-	m_board.push_back(new PFigure(new PPoint(3, 7), FigureType::Queen, side));
-	m_board.push_back(new PFigure(new PPoint(4, 7), FigureType::King, side));
+	return figures;
 }
 
 void PCheckboard::destroy() {
@@ -208,47 +189,32 @@ PCheckboard::PCheckboard(list<PFigure *> figures) {
 
 std::list<PFigure *> PCheckboard::getAllFigures() const {
 	std::list<PFigure *> out;
-	for (const auto i: m_board)
-		out.push_back(i);
-	for (const auto i: m_deadFigures)
-		out.push_back(i);
+	out.insert(out.end(), m_board.begin(), m_board.end());
+	out.insert(out.end(), m_deadFigures.begin(), m_deadFigures.end());
+
 	return out;
 }
 
 std::list<PPoint *> PCheckboard::buildPath(PFigure *figure) {
 	if (!figure) throw invalid_argument("Cannot build path for null pointer");
 
-	auto type = figure->getType();
 	list<PPoint *> possibleMoves;
 
-
 	// build possible path for different figure types
-	switch (type) {
-		case Pawn:
-			for (auto i: buildPawnPath(figure))
-				possibleMoves.push_back(i);
-			break;
-		case Rook:
-			for (auto i: buildRookPath(figure))
-				possibleMoves.push_back(i);
-			break;
-		case Knight:
-			for (auto i: buildKnightPath(figure))
-				possibleMoves.push_back(i);
-			break;
-		case Bishop:
-			for (auto i: buildBishopPath(figure))
-				possibleMoves.push_back(i);
-			break;
-		case Queen:
-			for (auto i: buildQueenPath(figure))
-				possibleMoves.push_back(i);
-			break;
-		case King:
-			for (auto i: buildKingPath(figure))
-				possibleMoves.push_back(i);
-			break;
-	}
+	if (figure->isPawn())
+		possibleMoves.splice(possibleMoves.end(), buildPawnPath(figure));
+	if (figure->isRook() || figure->isQueen())
+		possibleMoves.splice(possibleMoves.end(), buildRookPath(figure));
+
+	if (figure->isKnight())
+		possibleMoves.splice(possibleMoves.end(), buildKnightPath(figure));
+
+	if (figure->isBishop() || figure->isQueen())
+		possibleMoves.splice(possibleMoves.end(), buildBishopPath(figure));
+
+	if (figure->isKing())
+		possibleMoves.splice(possibleMoves.end(), buildKingPath(figure));
+
 	return possibleMoves;
 }
 
@@ -348,6 +314,16 @@ std::list<PPoint *> PCheckboard::buildRookPath(PFigure *figure) {
 		if (f) break; // we cannot move through figures
 	}
 
+	/// check castling
+
+	auto kingSpot = side == FigurePlayer::Whites ? new PPoint(4, 0) : new PPoint(4, 7);
+
+	if (checkCastling(figure, at(kingSpot)))
+		path.push_back(kingSpot);
+	else
+		delete kingSpot;
+
+	// return
 	return path;
 }
 
@@ -417,17 +393,18 @@ std::list<PPoint *> PCheckboard::buildKingPath(PFigure *figure) {
 	addOrDie(new PPoint(x, y + 1));
 	addOrDie(new PPoint(x, y - 1));
 
-	return path;
+	auto rook1Spot = side == FigurePlayer::Whites ? new PPoint(0, 0) : new PPoint(0, 7);
+	auto rook2Spot = side == FigurePlayer::Whites ? new PPoint(7, 0) : new PPoint(7, 7);
 
-}
+	if (checkCastling(figure, at(rook1Spot)))
+		path.push_back(rook1Spot);
+	else
+		delete rook1Spot;
 
-std::list<PPoint *> PCheckboard::buildQueenPath(PFigure *figure) {
-	BUILD_PATH_INTRO
-
-	for (auto i: buildBishopPath(figure))
-		path.push_back(i);
-	for (auto i: buildRookPath(figure))
-		path.push_back(i);
+	if (checkCastling(figure, at(rook2Spot)))
+		path.push_back(rook2Spot);
+	else
+		delete rook2Spot;
 
 	return path;
 }
@@ -438,4 +415,87 @@ void PCheckboard::setTurn(bool w) {
 
 bool PCheckboard::getWhitesTurn() const {
 	return whitesTurn;
+}
+
+bool PCheckboard::checkCastling(PFigure *one, PFigure *two) {
+	if (!one || !two) throw invalid_argument("Cannot perform castling on null pointers");
+	PFigure *rook;
+	PFigure *king;
+
+	if (!one->readyForCastling() || !two->readyForCastling())
+		return false;  /// no castling
+
+	if (one->getPlayer() != two->getPlayer())
+		return false; /// different sides
+
+	if (one->isRook() && two->isKing()) {
+		rook = one;
+		king = two;
+	} else if (two->isRook() && one->isKing()) {
+		king = one;
+		rook = two;
+	} else
+		return false; /// no rooks no castling
+
+
+	bool castlingPathClear = true;
+
+	auto kingX = king->getPoint()->getX();
+	auto rookX = rook->getPoint()->getX();
+
+	auto point = new PPoint(0, king->getPoint()->getY());
+	for (auto i = min(kingX + 1, rookX + 1); i < max(kingX, rookX); ++i) {
+		point->setX(i);
+		auto tmp = at(point);
+		if (!tmp) continue;
+		castlingPathClear = false;
+		/// tmp is an obstacle for castling
+		break;
+	}
+	delete point;
+
+	return castlingPathClear;
+}
+
+void PCheckboard::performMovement(PFigure *figure, PPoint *to) {
+	if (!figure || !to) throw invalid_argument("Cannot move null from to pointers");
+
+	auto fromX = figure->getPoint()->getX();
+
+	auto possibleFigure = at(to);
+
+	if (possibleFigure) {
+		if (possibleFigure->getPlayer() != figure->getPlayer()) {
+			possibleFigure->kill(figure);
+			m_board.remove(possibleFigure);
+			m_deadFigures.push_back(possibleFigure);
+
+		} else { /// else we castle
+			PFigure *king, *rook;
+			if (possibleFigure->isKing()) {
+				king = possibleFigure;
+				rook = figure;
+			} else {
+				king = figure;
+				rook = possibleFigure;
+			}
+
+			if (king->getPoint()->getX() < rook->getPoint()->getX()) { /// castle to the left
+				king->getPoint()->setX(king->getPoint()->getX() - 2);
+				rook->getPoint()->setX(king->getPoint()->getX() + 1);
+				rook->moved();
+				king->moved();
+
+			} else { /// castle to the right
+				figure->getPoint()->setX(fromX + 2);
+				possibleFigure->getPoint()->setX(figure->getPoint()->getX() - 1);
+				possibleFigure->moved();
+
+			}
+		}
+	} else {
+		figure->getPoint()->setX(to->getX());
+		figure->getPoint()->setY(to->getY());
+		figure->moved();
+	}
 }

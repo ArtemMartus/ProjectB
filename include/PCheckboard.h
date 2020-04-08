@@ -8,23 +8,26 @@
 #include <list>
 
 class PPoint;
+
 class PFigure;
-enum FigurePlayer: int;
+
+enum FigurePlayer : int;
 
 class PCheckboard {
 
 	std::list<PFigure *> m_board;
 	std::list<PFigure *> m_deadFigures;
 	bool whitesTurn;
+public:
 
 	void destroy();
 
 	bool allowsNext(PPoint *point, FigurePlayer side, bool isPawn = false);
 
+	bool checkCastling(PFigure *one, PFigure *two);
+
 	bool canGo(PPoint *p);
 
-
-public:
 	PCheckboard();
 
 	~PCheckboard();
@@ -32,25 +35,36 @@ public:
 	PFigure *at(PPoint *point);
 
 	/// returns true if move was made
-	bool move(PPoint *from, PPoint *to);
+	bool prepareMove(PPoint *from, PPoint *to);
 
 	std::list<PPoint *> buildPath(PFigure *figure);
+
 	std::list<PPoint *> buildPawnPath(PFigure *figure);
+
 	std::list<PPoint *> buildKnightPath(PFigure *figure);
+
 	std::list<PPoint *> buildRookPath(PFigure *figure);
+
 	std::list<PPoint *> buildBishopPath(PFigure *figure);
-	std::list<PPoint *> buildQueenPath(PFigure* figure);
-	std::list<PPoint *> buildKingPath(PFigure* figure);
+
+	std::list<PPoint *> buildKingPath(PFigure *figure);
 
 	/// resets all to beginning
 	void initialize();
 
+	std::list<PFigure *> buildSide(FigurePlayer side);
+
+	std::list<PFigure *> buildPawns();
+
 	void setTurn(bool whitesTurn);
-	bool getWhitesTurn() const ;
+
+	bool getWhitesTurn() const;
 
 	std::list<PFigure *> getAliveFigures() const;
 
 	bool onePlayerLeft() const;
+
+	void performMovement(PFigure *figure, PPoint *toPlace);
 
 	// save-load needed functions
 	PCheckboard(std::list<PFigure *> figures);
