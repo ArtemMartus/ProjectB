@@ -2,10 +2,10 @@
 // Created by Artem Martus on 07.04.2020.
 //
 
-#include "PSaver.h"
-#include "PCheckboard.h"
-#include "PFigure.h"
-#include "PPoint.h"
+#include "../include/PSaver.h"
+#include "../include/PCheckboard.h"
+#include "../include/PFigure.h"
+#include "../include/PPoint.h"
 
 #include <fstream>
 #include <sstream>

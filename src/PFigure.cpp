@@ -4,8 +4,8 @@
 
 #include <stdexcept>
 #include <cctype>
-#include "PFigure.h"
-#include "PPoint.h"
+#include "../include/PFigure.h"
+#include "../include/PPoint.h"
 
 PFigure::PFigure(PPoint *a, Type b, Player c)
 		: position(a), type(b), player(c), killedBy(nullptr) {

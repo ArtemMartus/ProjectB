@@ -2,9 +2,9 @@
 // Created by Artem Martus on 06.04.2020.
 //
 
-#include "PViewSide.h"
-#include "PCheckboard.h"
-#include "PFigure.h"
+#include "../include/PViewSide.h"
+#include "../include/PCheckboard.h"
+#include "../include/PFigure.h"
 #include <iostream>
 #include <iomanip>
 #include <iterator>

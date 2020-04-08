@@ -2,7 +2,7 @@
 // Created by Artem Martus on 06.04.2020.
 //
 
-#include "PPoint.h"
+#include "../include/PPoint.h"
 #include <sstream>
 #include <stdexcept>
 

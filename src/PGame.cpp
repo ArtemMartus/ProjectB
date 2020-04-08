@@ -2,12 +2,12 @@
 // Created by Artem Martus on 06.04.2020.
 //
 
-#include "PGame.h"
-#include "PViewSide.h"
-#include "PPoint.h"
-#include "PFigure.h"
-#include "PCheckboard.h"
-#include "PSaver.h"
+#include "../include/PGame.h"
+#include "../include/PViewSide.h"
+#include "../include/PPoint.h"
+#include "../include/PFigure.h"
+#include "../include/PCheckboard.h"
+#include "../include/PSaver.h"
 
 #include <cstdlib>
 #include <list>

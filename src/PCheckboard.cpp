@@ -17,9 +17,9 @@
 
 
 
-#include "PCheckboard.h"
-#include "PFigure.h"
-#include "PPoint.h"
+#include "../include/PCheckboard.h"
+#include "../include/PFigure.h"
+#include "../include/PPoint.h"
 #include <list>
 #include <stdexcept>
 

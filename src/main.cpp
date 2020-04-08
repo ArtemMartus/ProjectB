@@ -1,6 +1,6 @@
-#include "PGame.h"
-#include "PViewSide.h"
-#include "PSaver.h"
+#include "../include/PGame.h"
+#include "../include/PViewSide.h"
+#include "../include/PSaver.h"
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
 #include <windows.h>
 #endif
