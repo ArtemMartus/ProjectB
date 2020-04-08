@@ -16,6 +16,12 @@ enum FigurePlayer : int;
 class PCheckboard {
 protected:
 
+#ifndef NDEBUG
+	virtual void addFigure(PFigure* figure); /// for testing ONLY
+
+	virtual void removeFigure(PFigure* figure); /// for testing ONLY
+#endif
+
 	std::list<PFigure *> m_board;
 	std::list<PFigure *> m_deadFigures;
 	bool whitesTurn = true;
@@ -51,10 +57,6 @@ protected:
 	virtual PFigure *buildQueen(FigurePlayer side);
 
 	virtual PFigure *buildKing(FigurePlayer side);
-
-	virtual void addFigure(PFigure* figure); /// for testing
-
-	virtual void removeFigure(PFigure* figure); /// for testing
 
 public:
 	PCheckboard();

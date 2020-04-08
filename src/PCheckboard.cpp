@@ -522,6 +522,8 @@ PFigure *PCheckboard::buildKing(FigurePlayer side) {
 	return new PFigureImpl(new PPoint(4, 7 - y), FigureType::King, side);
 }
 
+#ifndef NDEBUG
+
 void PCheckboard::addFigure(PFigure *figure) {
 	m_board.push_back(figure);
 }
@@ -530,3 +532,5 @@ void PCheckboard::removeFigure(PFigure *figure) {
 	m_board.remove(figure);
 	m_deadFigures.remove(figure);
 }
+
+#endif

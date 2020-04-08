@@ -47,7 +47,7 @@ TEST_CASE_METHOD(PCheckboard, "Testing pawn-related internal methods of checkboa
 		whitePawns.clear();
 	}
 
-		/// mechanics
+	/// mechanics
 	SECTION("Path testing", "[buildPath]") {
 		WHEN("Has no moves yet") {
 			PFigure *figure = new PFigureImpl(new PPoint(4, 1),
