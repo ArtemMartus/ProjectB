@@ -31,7 +31,6 @@ public:
 
 	bool run();
 
-	bool runCycle();
 };
 
 

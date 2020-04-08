@@ -12,17 +12,6 @@
 #include <cstdlib>
 #include <list>
 
-#if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
-
-#define arc4random_uniform(x) rand()%x
-
-#elif defined (__linux__)
-
-/// ubuntu apt install libbsd-dev
-#include <bsd/stdlib.h>
-
-#endif
-
 using std::string;
 using std::list;
 
@@ -33,26 +22,8 @@ PGame::PGame(PViewSide *v, PSaver *s) : view(v), saver(s) {
 
 bool PGame::run() {
 	// who start?
-	int whoStartFirst = arc4random_uniform(2);
-	checkboard->setTurn(whoStartFirst == 0);
-	if (checkboard->getWhitesTurn()) {
-		view->renderText("Whites start the game");
-	} else {
-		view->renderText("Blacks start the game");
-	}
+	checkboard->setTurn(true);
 
-
-	return runCycle();
-}
-
-PGame::~PGame() {
-	if (checkboard) {
-		delete checkboard;
-		checkboard = nullptr;
-	}
-}
-
-bool PGame::runCycle() {
 	while (!checkboard->onePlayerLeft()) {
 
 		view->renderFigures(checkboard);
@@ -125,6 +96,14 @@ bool PGame::runCycle() {
 	}
 	return false;
 }
+
+PGame::~PGame() {
+	if (checkboard) {
+		delete checkboard;
+		checkboard = nullptr;
+	}
+}
+
 
 PFigure *PGame::selectFigure() {
 	PPoint *from = view->getPoint("Enter point from where to move: (0-7 0-7)");
