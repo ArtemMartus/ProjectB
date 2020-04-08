@@ -54,7 +54,17 @@ public:
 
 	std::list<PFigure *> buildSide(FigurePlayer side);
 
-	std::list<PFigure *> buildPawns();
+	std::list<PFigure *> buildPawns(FigurePlayer side);
+
+	std::list<PFigure *> buildRooks(FigurePlayer side);
+
+	std::list<PFigure *> buildKnights(FigurePlayer side);
+
+	std::list<PFigure *> buildBishops(FigurePlayer side);
+
+	PFigure *buildQueen(FigurePlayer side);
+
+	PFigure *buildKing(FigurePlayer side);
 
 	void setTurn(bool whitesTurn);
 

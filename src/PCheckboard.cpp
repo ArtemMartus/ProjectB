@@ -128,38 +128,6 @@ void PCheckboard::initialize() {
 	m_board.splice(m_board.end(), blacks);
 }
 
-list<PFigure *> PCheckboard::buildSide(FigurePlayer side) {
-	list<PFigure *> figures;
-	// chessboard consists of 8x8 squares
-	auto y = side == FigurePlayer::Whites ? 7 : 0; // 7 for whites, 0 for blacks
-	auto pawnY = side == FigurePlayer::Whites ? 1 : 6;
-
-	/// 8 pawns
-	for (int i = 0; i < 8; i++) {
-		auto pawns = new PFigure(new PPoint(i, pawnY), FigureType::Pawn, side);
-		figures.push_back(pawns);
-	}
-
-	/// 2 rooks
-	figures.push_back(new PFigure(new PPoint(0, 7 - y), FigureType::Rook, side));
-	figures.push_back(new PFigure(new PPoint(7, 7 - y), FigureType::Rook, side));
-
-	/// 2 knights
-	figures.push_back(new PFigure(new PPoint(1, 7 - y), FigureType::Knight, side));
-	figures.push_back(new PFigure(new PPoint(6, 7 - y), FigureType::Knight, side));
-
-	/// 2 bishops
-	figures.push_back(new PFigure(new PPoint(2, 7 - y), FigureType::Bishop, side));
-	figures.push_back(new PFigure(new PPoint(5, 7 - y), FigureType::Bishop, side));
-
-	/// one queen
-	figures.push_back(new PFigure(new PPoint(3, 7 - y), FigureType::Queen, side));
-
-	/// one king
-	figures.push_back(new PFigure(new PPoint(4, 7 - y), FigureType::King, side));
-
-	return figures;
-}
 
 void PCheckboard::destroy() {
 	if (!m_board.empty()) {
@@ -498,4 +466,68 @@ void PCheckboard::performMovement(PFigure *figure, PPoint *to) {
 		figure->getPoint()->setY(to->getY());
 		figure->moved();
 	}
+}
+
+list<PFigure *> PCheckboard::buildSide(FigurePlayer side) {
+	list<PFigure *> figures;    // chessboard consists of 8x8 squares
+
+	figures.splice(figures.end(), buildPawns(side));    /// 8 pawns
+	figures.splice(figures.end(), buildRooks(side));    /// 2 rooks
+	figures.splice(figures.end(), buildKnights(side));    /// 2 knights
+	figures.splice(figures.end(), buildBishops(side));    /// 2 bishops
+	figures.push_back(buildQueen(side));    /// one queen
+	figures.push_back(buildKing(side)); /// one king
+
+	return figures;
+}
+
+list<PFigure *> PCheckboard::buildPawns(FigurePlayer side) {
+	list<PFigure *> pawns;
+	auto pawnY = side == FigurePlayer::Whites ? 1 : 6;
+	for (int i = 0; i < 8; i++)
+		pawns.push_back(
+				new PFigure(
+						new PPoint(i, pawnY),
+						FigureType::Pawn, side));
+
+	return pawns;
+}
+
+#define BUILD_FIGURES_Y auto y = side == FigurePlayer::Whites ? 7 : 0; // 7 for whites, 0 for blacks
+
+std::list<PFigure *> PCheckboard::buildRooks(FigurePlayer side) {
+	BUILD_FIGURES_Y
+
+	return {
+			new PFigure(new PPoint(0, 7 - y), FigureType::Rook, side),
+			new PFigure(new PPoint(7, 7 - y), FigureType::Rook, side)
+	};
+}
+
+std::list<PFigure *> PCheckboard::buildKnights(FigurePlayer side) {
+	BUILD_FIGURES_Y
+
+	return {
+			new PFigure(new PPoint(1, 7 - y), FigureType::Knight, side),
+			new PFigure(new PPoint(6, 7 - y), FigureType::Knight, side)
+	};
+}
+
+std::list<PFigure *> PCheckboard::buildBishops(FigurePlayer side) {
+	BUILD_FIGURES_Y
+
+	return {new PFigure(new PPoint(2, 7 - y), FigureType::Bishop, side),
+	        new PFigure(new PPoint(5, 7 - y), FigureType::Bishop, side)};
+}
+
+PFigure *PCheckboard::buildQueen(FigurePlayer side) {
+	BUILD_FIGURES_Y
+
+	return new PFigure(new PPoint(3, 7 - y), FigureType::Queen, side);
+}
+
+PFigure *PCheckboard::buildKing(FigurePlayer side) {
+	BUILD_FIGURES_Y
+
+	return new PFigure(new PPoint(4, 7 - y), FigureType::King, side);
 }
