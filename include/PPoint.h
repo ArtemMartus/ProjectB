@@ -7,16 +7,24 @@
 
 #include <string>
 
+/// This class represents point on a chessboard
 class PPoint {
 	unsigned int x, y;
 public:
-	explicit PPoint(const PPoint* point);
+	explicit PPoint(const PPoint *point);
+
 	PPoint(unsigned int x, unsigned int y);
-	bool isEquals(PPoint* b);
+
+	bool isEquals(PPoint *b);
+
 	unsigned int getX() const;
+
 	unsigned int getY() const;
+
 	void setX(unsigned int);
+
 	void setY(unsigned int);
+
 	std::string asString();
 };
 

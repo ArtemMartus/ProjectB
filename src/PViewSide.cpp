@@ -2,9 +2,10 @@
 // Created by Artem Martus on 06.04.2020.
 //
 
-#include "../include/PViewSide.h"
-#include "../include/PCheckboard.h"
-#include "../include/PFigure.h"
+#include "PViewSide.h"
+#include "PCheckboard.h"
+#include "PFigure.h"
+#include "PPoint.h"
 #include <iostream>
 #include <iomanip>
 #include <iterator>
@@ -13,12 +14,8 @@
 
 using namespace std;
 
-void PViewSide::renderText(std::string str) {
+void PViewSide::renderText(string str) {
 	cout << str << endl;
-}
-
-void PViewSide::renderText(char ch) {
-	cout << ch << endl;
 }
 
 void PViewSide::renderFigures(PCheckboard *board) {
@@ -80,7 +77,7 @@ int PViewSide::inputAction(int lowBounds, int highBounds) {
 	return i;
 }
 
-PPoint *PViewSide::getPoint(const std::string &message) {
+PPoint *PViewSide::getPoint(const string &message) {
 	unsigned int x, y;
 	cout << message << endl;
 	x = inputAction(0, 7);
@@ -94,11 +91,11 @@ void PViewSide::renderKillText(char i, char i1) {
 
 void PViewSide::renderSelectedInfo(PFigure *pFigure) {
 	cout << "Selected " << pFigure->asChar() << " of "
-	     << (pFigure->getPlayer() == PFigure::Player::Whites ? "Whites" : "Blacks")
+	     << (pFigure->getPlayer() == FigurePlayer::Whites ? "Whites" : "Blacks")
 	     << " at " << pFigure->getPoint()->asString() << endl;
 }
 
-void PViewSide::renderMayGoToPath(const std::list<PPoint *>& list) {
+void PViewSide::renderMayGoToPath(const list<PPoint *>& list) {
 	cout << "May go to following points: ";
 	int index = 0;
 	for (auto i: list) {

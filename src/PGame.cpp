@@ -2,12 +2,12 @@
 // Created by Artem Martus on 06.04.2020.
 //
 
-#include "../include/PGame.h"
-#include "../include/PViewSide.h"
-#include "../include/PPoint.h"
-#include "../include/PFigure.h"
-#include "../include/PCheckboard.h"
-#include "../include/PSaver.h"
+#include "PGame.h"
+#include "PViewSide.h"
+#include "PPoint.h"
+#include "PFigure.h"
+#include "PCheckboard.h"
+#include "PSaver.h"
 
 #include <cstdlib>
 #include <list>
@@ -56,18 +56,18 @@ bool PGame::runCycle() {
 	while (!checkboard->onePlayerLeft()) {
 
 		view->renderFigures(checkboard);
-                static const list<string> actions = {"Move", "Save", "Load", "Restart", "Quit"};
+		static const list<string> actions = {"Move", "Save", "Load", "Restart", "Quit"};
 		auto response = view->askForAction(checkboard->getWhitesTurn(), actions);
 		switch (response) {
 			case 1:
-                    try {
-				saver->saveCheckboard(checkboard);
-				view->renderText("Game saved");
-                } catch (std::exception& e) {
-                        view->renderText("Couldn't save the game :(");
-                        view->renderText(e.what());
-                    }
-                    continue;
+				try {
+					saver->saveCheckboard(checkboard);
+					view->renderText("Game saved");
+				} catch (std::exception &e) {
+					view->renderText("Couldn't save the game :(");
+					view->renderText(e.what());
+				}
+				continue;
 			case 0: {
 
 				auto figure = selectFigure();
@@ -102,23 +102,23 @@ bool PGame::runCycle() {
 			}
 				break;
 			case 2:
-                       try {
-                                auto file = saver->loadCheckboard();
-                                delete checkboard;
-                                checkboard = file;
-				view->renderText("Game loaded");
-                } catch (std::exception& e) {
-                        view->renderText("Couldn't restore the game :(");
-                        view->renderText(e.what());
-                    }
+				try {
+					auto file = saver->loadCheckboard();
+					delete checkboard;
+					checkboard = file;
+					view->renderText("Game loaded");
+				} catch (std::exception &e) {
+					view->renderText("Couldn't restore the game :(");
+					view->renderText(e.what());
+				}
 
-                    continue;
+				continue;
 			case 3:
 				view->renderText("Game restarted");
 				checkboard->initialize();
 				return run();
-                case 4:
-                    return !checkboard->getWhitesTurn();
+			case 4:
+				return !checkboard->getWhitesTurn();
 		}
 
 		checkboard->setTurn(!checkboard->getWhitesTurn());
@@ -133,8 +133,8 @@ PFigure *PGame::selectFigure() {
 	auto ally = [&](PFigure *f) -> bool {
 		bool t = checkboard->getWhitesTurn();
 		if (!f) return false;
-		return !((f->getPlayer() == PFigure::Player::Whites && !t)
-		         || (f->getPlayer() == PFigure::Player::Blacks && t));
+		return !((f->getPlayer() == FigurePlayer::Whites && !t)
+		         || (f->getPlayer() == FigurePlayer::Blacks && t));
 	};
 
 	while (!ally(figure)) {

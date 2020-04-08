@@ -7,23 +7,30 @@
 
 
 class PViewSide;
+
 class PCheckboard;
+
 class PSaver;
+
 class PPoint;
+
 class PFigure;
 
 class PGame {
 protected:
-	PViewSide* view;
-	PSaver* saver;
-	PCheckboard* checkboard;
+	PViewSide *view;
+	PSaver *saver;
+	PCheckboard *checkboard;
 
-	PFigure*  selectFigure();
+	PFigure *selectFigure();
 
 public:
-	PGame(PViewSide* v, PSaver* saver);
+	PGame(PViewSide *v, PSaver *saver);
+
 	~PGame();
+
 	bool run();
+
 	bool runCycle();
 };
 

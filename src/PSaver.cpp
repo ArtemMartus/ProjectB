@@ -2,10 +2,10 @@
 // Created by Artem Martus on 07.04.2020.
 //
 
-#include "../include/PSaver.h"
-#include "../include/PCheckboard.h"
-#include "../include/PFigure.h"
-#include "../include/PPoint.h"
+#include "PSaver.h"
+#include "PCheckboard.h"
+#include "PFigure.h"
+#include "PPoint.h"
 
 #include <fstream>
 #include <sstream>
@@ -14,18 +14,17 @@ using namespace std;
 
 PCheckboard *PSaver::loadCheckboard() {
 	ifstream file(fileName);
-        if (!file.is_open()) { // stream failed to read int data
-            throw runtime_error("Couldn't open savefile");
-            return nullptr;
-        }
-	list<PFigure*> objects;
+	if (!file.is_open())  // stream failed to read int data
+		throw runtime_error("Couldn't open savefile");
+
+	list<PFigure *> objects;
 	string str;
-	getline(file,str);
+	getline(file, str);
 
 	bool turn = atoi(str.c_str());
 
 	while (!file.eof()) {
-		getline(file,str);
+		getline(file, str);
 		objects.push_back(restorePFigure(str));
 	}
 	auto c = new PCheckboard(objects);
@@ -35,18 +34,17 @@ PCheckboard *PSaver::loadCheckboard() {
 
 void PSaver::saveCheckboard(PCheckboard *checkboard) {
 	ofstream file(fileName);
-        if (!file.is_open()) { // stream failed to read int data
-            throw runtime_error("Couldn't write to savefile");
-            return;
-        }
+	if (!file.is_open())  // stream failed to read int data
+		throw runtime_error("Couldn't write to savefile");
+
 	file << checkboard->getWhitesTurn() << "\n";
 	for (auto item: checkboard->getAllFigures())
 		file << dumpPFigure(item) << "\n";
 	file.close();
 }
 
-std::string PSaver::dumpPFigure(PFigure *fig) {
-	if (!fig) throw std::invalid_argument("Cannot dump null figure");
+string PSaver::dumpPFigure(PFigure *fig) {
+	if (!fig) throw invalid_argument("Cannot dump null figure");
 	ostringstream stream;
 	stream << fig->getPlayer()
 	       << " " << fig->getType()
@@ -63,30 +61,29 @@ std::string PSaver::dumpPFigure(PFigure *fig) {
 
 PFigure *PSaver::restorePFigure(const std::string &data) {
 	istringstream stream(data);
-        PFigure::Player player = PFigure::Player::Whites;
-        PFigure::Type type = PFigure::Type::Pawn;
-        unsigned int x = 0, y = 0;
+	auto player = FigurePlayer::Whites;
+	auto type = FigureType::Pawn;
+	unsigned int x = 0, y = 0;
 
-        int i = 0;
+	int i = 0;
 
 	stream >> i;
-	player = static_cast<PFigure::Player>(i);
+	player = static_cast<FigurePlayer>(i);
 	stream >> i;
-	type = static_cast<PFigure::Type>(i);
-        stream >> x >> y; // i indicates -1 = alive, 1 = killed by ...
+	type = static_cast<FigureType>(i);
+	stream >> x >> y; // i indicates -1 = alive, 1 = killed by ...
 
-        stream >> i;
+	stream >> i;
 
-        if (!stream.eof() && stream.fail()) { // stream failed to read int data
-            throw runtime_error("Got bad formatted savefile");
-            return nullptr;
-        }
+	if (!stream.eof() && stream.fail())  // stream failed to read int data
+		throw runtime_error("Got bad formatted savefile");
+
 
 	auto figure = new PFigure(new PPoint(x, y), type, player);
 
 	if (i == 1) {
 		string data2;
-		getline(stream,data2);
+		getline(stream, data2);
 		auto killedBy = restorePFigure(data2);
 		figure->kill(killedBy);
 		delete killedBy;
@@ -94,5 +91,5 @@ PFigure *PSaver::restorePFigure(const std::string &data) {
 	return figure;
 }
 
-PSaver::PSaver(std::string f): fileName(f) {
+PSaver::PSaver(string f) : fileName(f) {
 }

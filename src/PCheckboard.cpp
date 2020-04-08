@@ -7,19 +7,19 @@
                         int x = figure->getPoint()->getX(), y = figure->getPoint()->getY();\
                         auto side = figure->getPlayer(); \
                         auto addOrDie = [&path, side, this](PPoint *p, bool pawnMode = false) {\
-	                        if (canGo(p) && allowsNext(p, side, pawnMode)) {\
-		                        path.push_back(p);\
-		                        return true;\
-	                        } else\
-		                        delete p;\
-	                        return false;\
+                            if (canGo(p) && allowsNext(p, side, pawnMode)) {\
+                                path.push_back(p);\
+                                return true;\
+                            } else\
+                                delete p;\
+                            return false;\
                         };\
 
 
 
-#include "../include/PCheckboard.h"
-#include "../include/PFigure.h"
-#include "../include/PPoint.h"
+#include "PCheckboard.h"
+#include "PFigure.h"
+#include "PPoint.h"
 #include <list>
 #include <stdexcept>
 
@@ -97,8 +97,8 @@ bool PCheckboard::move(PPoint *from, PPoint *to) {
 	}
 
 	// after the movement we update board figures if needed and check special morphs for pawns
-	if (type == PFigure::Type::Pawn && !m_deadFigures.empty()) {
-		int endY = side == PFigure::Player::Whites ? 7 : 0;
+	if (type == FigureType::Pawn && !m_deadFigures.empty()) {
+		int endY = side == FigurePlayer::Whites ? 7 : 0;
 		if (to->getY() == endY) {
 			int random_i = arc4random_uniform(m_deadFigures.size());
 			PFigure *undead = nullptr;
@@ -146,49 +146,49 @@ void PCheckboard::initialize() {
 		destroy();
 
 	// chessboard consists of 8x8 squares
-	auto side = PFigure::Player::Whites;
+	auto side = FigurePlayer::Whites;
 
 	/// 8 pawns
 	for (int i = 0; i < 8; i++) {
 		auto point = new PPoint(i, 1);
-		auto pawns = new PFigure(point, PFigure::Type::Pawn, side);
+		auto pawns = new PFigure(point, FigureType::Pawn, side);
 		m_board.push_back(pawns);
 	}
 
 	/// 2 rooks
-	m_board.push_back(new PFigure(new PPoint(0, 0), PFigure::Type::Rook, side));
-	m_board.push_back(new PFigure(new PPoint(7, 0), PFigure::Type::Rook, side));
+	m_board.push_back(new PFigure(new PPoint(0, 0), FigureType::Rook, side));
+	m_board.push_back(new PFigure(new PPoint(7, 0), FigureType::Rook, side));
 
 	/// 2 knights
-	m_board.push_back(new PFigure(new PPoint(1, 0), PFigure::Type::Knight, side));
-	m_board.push_back(new PFigure(new PPoint(6, 0), PFigure::Type::Knight, side));
+	m_board.push_back(new PFigure(new PPoint(1, 0), FigureType::Knight, side));
+	m_board.push_back(new PFigure(new PPoint(6, 0), FigureType::Knight, side));
 
 	/// 2 bishops
-	m_board.push_back(new PFigure(new PPoint(2, 0), PFigure::Type::Bishop, side));
-	m_board.push_back(new PFigure(new PPoint(5, 0), PFigure::Type::Bishop, side));
+	m_board.push_back(new PFigure(new PPoint(2, 0), FigureType::Bishop, side));
+	m_board.push_back(new PFigure(new PPoint(5, 0), FigureType::Bishop, side));
 
 	/// one queen
-	m_board.push_back(new PFigure(new PPoint(3, 0), PFigure::Type::Queen, side));
+	m_board.push_back(new PFigure(new PPoint(3, 0), FigureType::Queen, side));
 
 	/// one king
-	m_board.push_back(new PFigure(new PPoint(4, 0), PFigure::Type::King, side));
+	m_board.push_back(new PFigure(new PPoint(4, 0), FigureType::King, side));
 
 	/// and the same for the other side
-	side = PFigure::Player::Blacks;
+	side = FigurePlayer::Blacks;
 
 	for (int i = 0; i < 8; i++) {
 		auto point = new PPoint(i, 6);
-		auto pawns = new PFigure(point, PFigure::Type::Pawn, side);
+		auto pawns = new PFigure(point, FigureType::Pawn, side);
 		m_board.push_back(pawns);
 	}
-	m_board.push_back(new PFigure(new PPoint(0, 7), PFigure::Type::Rook, side));
-	m_board.push_back(new PFigure(new PPoint(7, 7), PFigure::Type::Rook, side));
-	m_board.push_back(new PFigure(new PPoint(1, 7), PFigure::Type::Knight, side));
-	m_board.push_back(new PFigure(new PPoint(6, 7), PFigure::Type::Knight, side));
-	m_board.push_back(new PFigure(new PPoint(2, 7), PFigure::Type::Bishop, side));
-	m_board.push_back(new PFigure(new PPoint(5, 7), PFigure::Type::Bishop, side));
-	m_board.push_back(new PFigure(new PPoint(3, 7), PFigure::Type::Queen, side));
-	m_board.push_back(new PFigure(new PPoint(4, 7), PFigure::Type::King, side));
+	m_board.push_back(new PFigure(new PPoint(0, 7), FigureType::Rook, side));
+	m_board.push_back(new PFigure(new PPoint(7, 7), FigureType::Rook, side));
+	m_board.push_back(new PFigure(new PPoint(1, 7), FigureType::Knight, side));
+	m_board.push_back(new PFigure(new PPoint(6, 7), FigureType::Knight, side));
+	m_board.push_back(new PFigure(new PPoint(2, 7), FigureType::Bishop, side));
+	m_board.push_back(new PFigure(new PPoint(5, 7), FigureType::Bishop, side));
+	m_board.push_back(new PFigure(new PPoint(3, 7), FigureType::Queen, side));
+	m_board.push_back(new PFigure(new PPoint(4, 7), FigureType::King, side));
 }
 
 void PCheckboard::destroy() {
@@ -235,27 +235,27 @@ std::list<PPoint *> PCheckboard::buildPath(PFigure *figure) {
 
 	// build possible path for different figure types
 	switch (type) {
-		case PFigure::Pawn:
+		case Pawn:
 			for (auto i: buildPawnPath(figure))
 				possibleMoves.push_back(i);
 			break;
-		case PFigure::Rook:
+		case Rook:
 			for (auto i: buildRookPath(figure))
 				possibleMoves.push_back(i);
 			break;
-		case PFigure::Knight:
+		case Knight:
 			for (auto i: buildKnightPath(figure))
 				possibleMoves.push_back(i);
 			break;
-		case PFigure::Bishop:
+		case Bishop:
 			for (auto i: buildBishopPath(figure))
 				possibleMoves.push_back(i);
 			break;
-		case PFigure::Queen:
+		case Queen:
 			for (auto i: buildQueenPath(figure))
 				possibleMoves.push_back(i);
 			break;
-		case PFigure::King:
+		case King:
 			for (auto i: buildKingPath(figure))
 				possibleMoves.push_back(i);
 			break;
@@ -264,7 +264,7 @@ std::list<PPoint *> PCheckboard::buildPath(PFigure *figure) {
 }
 
 
-bool PCheckboard::allowsNext(PPoint *p, PFigure::Player side, bool isPawn) {
+bool PCheckboard::allowsNext(PPoint *p, FigurePlayer side, bool isPawn) {
 	auto fig = at(p);
 	bool ret;
 	if (isPawn)
@@ -283,7 +283,7 @@ bool PCheckboard::canGo(PPoint *p) {
 std::list<PPoint *> PCheckboard::buildPawnPath(PFigure *figure) {
 	BUILD_PATH_INTRO
 
-	if (side == PFigure::Player::Whites) {
+	if (side == FigurePlayer::Whites) {
 		addOrDie(new PPoint(x, y + 1));
 		addOrDie(new PPoint(x + 1, y + 1), true);
 		addOrDie(new PPoint(x - 1, y + 1), true);

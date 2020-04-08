@@ -2,9 +2,11 @@
 // Created by Artem Martus on 06.04.2020.
 //
 
-#include "../include/PPoint.h"
+#include "PPoint.h"
 #include <sstream>
 #include <stdexcept>
+
+using namespace std;
 
 PPoint::PPoint(unsigned int a, unsigned int b) : x(a), y(b) {
 }
@@ -22,7 +24,7 @@ unsigned int PPoint::getY() const {
 }
 
 bool PPoint::isEquals(PPoint *b) {
-	if (b == nullptr) throw std::invalid_argument("Cannot equals to null pointer!");
+	if (b == nullptr) throw invalid_argument("Cannot equals to null pointer!");
 	return x == b->getX() && y == b->getY();
 }
 
@@ -34,8 +36,8 @@ void PPoint::setY(unsigned int i) {
 	y = i;
 }
 
-std::string PPoint::asString() {
-	std::ostringstream s;
+string PPoint::asString() {
+	ostringstream s;
 	s << "(" << getX();
 	s << ", " << getY();
 	s << ")";

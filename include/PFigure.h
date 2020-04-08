@@ -7,35 +7,43 @@
 
 class PPoint;
 
+enum FigureType : int {
+	Pawn = 0, Rook, Knight, Bishop, Queen, King
+};
+
+enum FigurePlayer : int {
+	Whites = 0, Blacks
+};
+
 class PFigure {
-	PPoint* position;
-	PFigure* killedBy;
-public: /// enums
-	enum Type {
-		Pawn, Rook, Knight, Bishop, Queen, King
-	};
-	enum Player {
-		Whites, Blacks
-	};
+	PPoint *position;
+	PFigure *killedBy;
+	FigurePlayer player;
+	FigureType type;
 
 public:
-	PFigure(PPoint* point, Type type, Player player);
-	explicit PFigure(const PFigure* figure);
+	PFigure(PPoint *point, FigureType type, FigurePlayer player);
+
+	explicit PFigure(const PFigure *figure);
+
 	~PFigure();
 
-	void kill(PFigure* by);
+	void kill(PFigure *by);
+
 	void revive();
 
 	char asChar() const;
-	bool isAlive() const;
-	Type getType() const;
-	Player getPlayer() const;
-	PPoint* getPoint() const;
-	PFigure* getKilledBy() const;
 
-private:
-	Player player;
-	Type type;
+	bool isAlive() const;
+
+	FigureType getType() const;
+
+	FigurePlayer getPlayer() const;
+
+	PPoint *getPoint() const;
+
+	PFigure *getKilledBy() const;
+
 };
 
 

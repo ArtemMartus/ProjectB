@@ -4,10 +4,10 @@
 
 #include <stdexcept>
 #include <cctype>
-#include "../include/PFigure.h"
-#include "../include/PPoint.h"
+#include "PFigure.h"
+#include "PPoint.h"
 
-PFigure::PFigure(PPoint *a, Type b, Player c)
+PFigure::PFigure(PPoint *a, FigureType b, FigurePlayer c)
 		: position(a), type(b), player(c), killedBy(nullptr) {
 	if (a == nullptr) throw std::invalid_argument("Figure must have its place!");
 }
@@ -43,11 +43,11 @@ bool PFigure::isAlive() const {
 	return killedBy == nullptr;
 }
 
-PFigure::Type PFigure::getType() const {
+FigureType PFigure::getType() const {
 	return type;
 }
 
-PFigure::Player PFigure::getPlayer() const {
+FigurePlayer PFigure::getPlayer() const {
 	return player;
 }
 
@@ -82,7 +82,7 @@ char PFigure::asChar() const {
 			break;
 	}
 
-	return player == PFigure::Player::Whites ? toupper(out) : out;
+	return player == FigurePlayer::Whites ? toupper(out) : out;
 }
 
 void PFigure::revive() {

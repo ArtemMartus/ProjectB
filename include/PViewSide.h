@@ -7,8 +7,10 @@
 
 #include <list>
 #include <string>
-#include "PPoint.h"
-#include "PFigure.h"
+
+class PFigure;
+
+class PPoint;
 
 class PCheckboard;
 
@@ -19,19 +21,17 @@ class PViewSide {
 public:
 	void renderText(std::string str);
 
-	void renderText(char ch);
-
 	void renderFigures(PCheckboard *checkboard);
 
 	int askForAction(bool b, const std::list<std::string> &actions);
 
-	PPoint *getPoint(const std::string& message);
+	PPoint *getPoint(const std::string &message);
 
 	void renderKillText(char victim, char killer);
 
 	void renderSelectedInfo(PFigure *pFigure);
 
-	void renderMayGoToPath(const std::list<PPoint *>& list);
+	void renderMayGoToPath(const std::list<PPoint *> &list);
 };
 
 

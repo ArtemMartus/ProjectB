@@ -6,9 +6,10 @@
 #define PROJECTB_PCHECKBOARD_H
 
 #include <list>
-#include "PFigure.h"
 
 class PPoint;
+class PFigure;
+enum FigurePlayer: int;
 
 class PCheckboard {
 
@@ -18,7 +19,7 @@ class PCheckboard {
 
 	void destroy();
 
-	bool allowsNext(PPoint *point, PFigure::Player side, bool isPawn = false);
+	bool allowsNext(PPoint *point, FigurePlayer side, bool isPawn = false);
 
 	bool canGo(PPoint *p);
 

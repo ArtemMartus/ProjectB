@@ -8,17 +8,22 @@
 #include <string>
 
 class PCheckboard;
+
 class PFigure;
 
 class PSaver {
 	std::string fileName;
-protected:
-	virtual std::string dumpPFigure(PFigure* fig);
-	virtual PFigure* restorePFigure(const std::string& data);
+
+	std::string dumpPFigure(PFigure *fig);
+
+	virtual PFigure *restorePFigure(const std::string &data);
+
 public:
 	explicit PSaver(std::string filename);
-	virtual void saveCheckboard(PCheckboard* checkboard);
-	virtual PCheckboard* loadCheckboard();
+
+	void saveCheckboard(PCheckboard *checkboard);
+
+	PCheckboard *loadCheckboard();
 };
 
 

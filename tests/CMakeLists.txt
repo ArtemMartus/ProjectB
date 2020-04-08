@@ -1,5 +1,5 @@
 include_directories (${PROJECTB_SOURCE_DIR}/include)
 
-add_executable (Test test.cpp test.cpp)
-target_link_libraries (Test PChess)
-add_test (NAME MyTest COMMAND Test)
+add_executable (testPPoint testPPoint.cpp)
+target_link_libraries (testPPoint PChess)
+add_test (NAME PPointTest COMMAND testPPoint)
