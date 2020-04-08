@@ -9,6 +9,7 @@
 #include <iomanip>
 #include <iterator>
 #include <algorithm>
+#include <climits> ///INT_MAX for linux
 
 using namespace std;
 

@@ -27,7 +27,13 @@
 
 #define arc4random_uniform(x) rand()%x
 
+#elif defined (__linux__)
+
+/// ubuntu apt install libbsd-dev
+#include <bsd/stdlib.h>
+
 #endif
+
 
 using namespace std;
 

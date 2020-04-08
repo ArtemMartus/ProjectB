@@ -16,6 +16,11 @@
 
 #define arc4random_uniform(x) rand()%x
 
+#elif defined (__linux__)
+
+/// ubuntu apt install libbsd-dev
+#include <bsd/stdlib.h>
+
 #endif
 
 using std::string;
@@ -51,13 +56,18 @@ bool PGame::runCycle() {
 	while (!checkboard->onePlayerLeft()) {
 
 		view->renderFigures(checkboard);
-		static const list<string> actions = {"Move", "Save", "Load", "Restart"};
+                static const list<string> actions = {"Move", "Save", "Load", "Restart", "Quit"};
 		auto response = view->askForAction(checkboard->getWhitesTurn(), actions);
 		switch (response) {
 			case 1:
+                    try {
 				saver->saveCheckboard(checkboard);
 				view->renderText("Game saved");
-				runCycle();
+                } catch (std::exception& e) {
+                        view->renderText("Couldn't save the game :(");
+                        view->renderText(e.what());
+                    }
+                    continue;
 			case 0: {
 
 				auto figure = selectFigure();
@@ -92,14 +102,23 @@ bool PGame::runCycle() {
 			}
 				break;
 			case 2:
-				delete checkboard;
-				checkboard = saver->loadCheckboard();
+                       try {
+                                auto file = saver->loadCheckboard();
+                                delete checkboard;
+                                checkboard = file;
 				view->renderText("Game loaded");
-				return runCycle();
+                } catch (std::exception& e) {
+                        view->renderText("Couldn't restore the game :(");
+                        view->renderText(e.what());
+                    }
+
+                    continue;
 			case 3:
 				view->renderText("Game restarted");
 				checkboard->initialize();
 				return run();
+                case 4:
+                    return !checkboard->getWhitesTurn();
 		}
 
 		checkboard->setTurn(!checkboard->getWhitesTurn());
