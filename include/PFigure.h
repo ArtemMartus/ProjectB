@@ -15,7 +15,9 @@ enum FigurePlayer : int {
 	Whites = 0, Blacks
 };
 
+/// PFigure abstract class
 class PFigure {
+protected:
 	PPoint *position;
 	PFigure *killedBy;
 	FigurePlayer player;
@@ -25,43 +27,53 @@ class PFigure {
 public:
 	PFigure(PPoint *point, FigureType type, FigurePlayer player, unsigned int movesMade = 0);
 
-	explicit PFigure(const PFigure *figure);
+	virtual ~PFigure();
 
-	~PFigure();
+	virtual void kill(PFigure *by) = 0;
 
-	void kill(PFigure *by);
+	virtual void revive();
 
-	void revive();
+	virtual char asChar() const;
 
-	char asChar() const;
+	virtual bool isAlive() const;
 
-	bool isAlive() const;
+	virtual bool readyForCastling() const;
 
-	bool readyForCastling() const;
+	virtual bool isPawn() const;
 
-	bool isPawn() const;
+	virtual bool isRook() const;
 
-	bool isRook() const;
+	virtual bool isKnight() const;
 
-	bool isKnight() const;
+	virtual bool isBishop() const;
 
-	bool isBishop() const;
+	virtual bool isQueen() const;
 
-	bool isQueen() const;
+	virtual bool isKing() const;
 
-	bool isKing() const;
+	virtual FigureType getType() const;
 
-	FigureType getType() const;
+	virtual FigurePlayer getPlayer() const;
 
-	FigurePlayer getPlayer() const;
+	virtual PPoint *getPoint() const;
 
-	PPoint *getPoint() const;
+	virtual PFigure *getKilledBy() const;
 
-	PFigure *getKilledBy() const;
+	virtual void moved();
 
-	void moved();
+	virtual unsigned int getMovesCount() const;
+};
 
-	unsigned int getMovesCount() const;
+/// Implementation figure
+class PFigureImpl : public PFigure {
+
+public:
+	explicit PFigureImpl(const PFigure *figure);
+
+	PFigureImpl(PPoint *point, FigureType type, FigurePlayer player, unsigned int movesMade = 0);
+
+	void kill(PFigure *by) override;
+
 };
 
 

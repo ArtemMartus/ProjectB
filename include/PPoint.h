@@ -21,6 +21,8 @@ public:
 
 	unsigned int getY() const;
 
+	bool inBounds() const; /// says whether coordinates in [0;7] range
+
 	void setX(unsigned int);
 
 	void setY(unsigned int);

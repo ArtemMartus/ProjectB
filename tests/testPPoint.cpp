@@ -11,6 +11,7 @@ SCENARIO("Point coordinates can be accessed via getters and setters", "[PPoint]"
 		PPoint point(0, 0);
 		REQUIRE(point.getX() == 0);
 		REQUIRE(point.getY() == 0);
+		REQUIRE(point.inBounds());
 
 		WHEN("We change x coordinate to 5") {
 			point.setX(5);
@@ -33,7 +34,9 @@ SCENARIO("Point coordinates can be accessed via getters and setters", "[PPoint]"
 	}
 
 	GIVEN("Point with coordinates 4 4") {
-		PPoint point(4,4);
+		PPoint point(4, 4);
+		REQUIRE(point.inBounds());
+
 		WHEN("We call its asString() method") {
 			auto str = point.asString();
 			THEN("We get following string '(4,4)'") {
@@ -42,13 +45,14 @@ SCENARIO("Point coordinates can be accessed via getters and setters", "[PPoint]"
 		}
 
 		WHEN("We create another point with 4 4 coordinates and call isEquals() method") {
-			PPoint point2(4,4);
+			PPoint point2(4, 4);
+			REQUIRE(point2.inBounds());
+
 			THEN("We got correct point comparison") {
 				REQUIRE(point.isEquals(&point2));
 			}
-		}
-		AND_WHEN("We create another point with 3 4 coordinates and call isEquals() method") {
-			PPoint point2(3,4);
+		} AND_WHEN("We create another point with 3 4 coordinates and call isEquals() method") {
+			PPoint point2(3, 4);
 			THEN("We got correct point comparison") {
 				REQUIRE(!point.isEquals(&point2));
 			}
@@ -56,7 +60,9 @@ SCENARIO("Point coordinates can be accessed via getters and setters", "[PPoint]"
 	}
 
 	GIVEN("A point with -1 -1 coordinates") {
-		PPoint point(-1,-1);
+		PPoint point(-1, -1);
+		REQUIRE(!point.inBounds());
+
 		WHEN("We get them coordinates") {
 			auto x = point.getX();
 			auto y = point.getY();

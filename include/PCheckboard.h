@@ -14,72 +14,75 @@ class PFigure;
 enum FigurePlayer : int;
 
 class PCheckboard {
+protected:
 
 	std::list<PFigure *> m_board;
 	std::list<PFigure *> m_deadFigures;
-	bool whitesTurn;
+	bool whitesTurn = true;
+
+	virtual void destroy();
+
+	virtual bool checkCastling(PFigure *one, PFigure *two);
+
+	virtual PPoint *addOrDie(PPoint *point, FigurePlayer side, bool pawnMode);
+
+	virtual std::list<PPoint *> buildPawnPath(PFigure *figure);
+
+	virtual std::list<PPoint *> buildKnightPath(PFigure *figure);
+
+	virtual std::list<PPoint *> buildRookPath(PFigure *figure);
+
+	virtual std::list<PPoint *> buildBishopPath(PFigure *figure);
+
+	virtual std::list<PPoint *> buildKingPath(PFigure *figure);
+
+	virtual std::list<PFigure *> buildSide(FigurePlayer side);
+
+	virtual void performMovement(PFigure *figure, PPoint *toPlace);
+
+	virtual std::list<PFigure *> buildPawns(FigurePlayer side);
+
+	virtual std::list<PFigure *> buildRooks(FigurePlayer side);
+
+	virtual std::list<PFigure *> buildKnights(FigurePlayer side);
+
+	virtual std::list<PFigure *> buildBishops(FigurePlayer side);
+
+	virtual PFigure *buildQueen(FigurePlayer side);
+
+	virtual PFigure *buildKing(FigurePlayer side);
+
+	virtual void addFigure(PFigure* figure); /// for testing
+
+	virtual void removeFigure(PFigure* figure); /// for testing
+
 public:
-
-	void destroy();
-
-	bool allowsNext(PPoint *point, FigurePlayer side, bool isPawn = false);
-
-	bool checkCastling(PFigure *one, PFigure *two);
-
-	bool canGo(PPoint *p);
-
 	PCheckboard();
 
-	~PCheckboard();
+	virtual ~PCheckboard();
 
-	PFigure *at(PPoint *point);
+	virtual PFigure *at(PPoint *point);
+
+	virtual std::list<PPoint *> buildPath(PFigure *figure);
 
 	/// returns true if move was made
-	bool prepareMove(PPoint *from, PPoint *to);
+	virtual bool prepareMove(PPoint *from, PPoint *to);
 
-	std::list<PPoint *> buildPath(PFigure *figure);
+	/// create fresh figures and place them on board
+	virtual void initialize();
 
-	std::list<PPoint *> buildPawnPath(PFigure *figure);
+	virtual void setTurn(bool whitesTurn);
 
-	std::list<PPoint *> buildKnightPath(PFigure *figure);
+	virtual bool getWhitesTurn() const;
 
-	std::list<PPoint *> buildRookPath(PFigure *figure);
+	virtual std::list<PFigure *> getAliveFigures() const;
 
-	std::list<PPoint *> buildBishopPath(PFigure *figure);
-
-	std::list<PPoint *> buildKingPath(PFigure *figure);
-
-	/// resets all to beginning
-	void initialize();
-
-	std::list<PFigure *> buildSide(FigurePlayer side);
-
-	std::list<PFigure *> buildPawns(FigurePlayer side);
-
-	std::list<PFigure *> buildRooks(FigurePlayer side);
-
-	std::list<PFigure *> buildKnights(FigurePlayer side);
-
-	std::list<PFigure *> buildBishops(FigurePlayer side);
-
-	PFigure *buildQueen(FigurePlayer side);
-
-	PFigure *buildKing(FigurePlayer side);
-
-	void setTurn(bool whitesTurn);
-
-	bool getWhitesTurn() const;
-
-	std::list<PFigure *> getAliveFigures() const;
-
-	bool onePlayerLeft() const;
-
-	void performMovement(PFigure *figure, PPoint *toPlace);
+	virtual bool onePlayerLeft() const;
 
 	// save-load needed functions
 	PCheckboard(std::list<PFigure *> figures);
 
-	std::list<PFigure *> getAllFigures() const;
+	virtual std::list<PFigure *> getAllFigures() const;
 };
 
 

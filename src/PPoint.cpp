@@ -43,3 +43,7 @@ string PPoint::asString() {
 	s << ")";
 	return s.str();
 }
+
+bool PPoint::inBounds() const {
+	return x < 8 && y < 8;
+}

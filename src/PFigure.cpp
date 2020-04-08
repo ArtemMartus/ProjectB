@@ -12,14 +12,6 @@ PFigure::PFigure(PPoint *a, FigureType b, FigurePlayer c, unsigned int moves)
 	if (a == nullptr) throw std::invalid_argument("Figure must have its place!");
 }
 
-PFigure::PFigure(const PFigure *figure)
-		: position(new PPoint(figure->position)), type(figure->type),
-		  player(figure->player), killedBy(nullptr), movesMade(figure->movesMade) {
-	if (figure->killedBy) {
-		killedBy = new PFigure(figure->killedBy);
-	}
-}
-
 PFigure::~PFigure() {
 	if (killedBy) {
 		delete killedBy;
@@ -29,14 +21,6 @@ PFigure::~PFigure() {
 		delete position;
 		position = nullptr;
 	}
-}
-
-void PFigure::kill(PFigure *by) {
-	if (!by) throw std::invalid_argument("Cannot be killed by null pointer!");
-	if (!killedBy)
-		killedBy = new PFigure(by);
-	else
-		throw std::invalid_argument("What is dead may never die");
 }
 
 bool PFigure::isAlive() const {
@@ -124,4 +108,31 @@ bool PFigure::isQueen() const {
 
 bool PFigure::isKing() const {
 	return type == FigureType::King;
+}
+
+// further implementation
+
+PFigureImpl::PFigureImpl(const PFigure *figure)
+		: PFigure(new PPoint(figure->getPoint()),
+		          figure->getType(), figure->getPlayer(),
+		          figure->getMovesCount()) {
+
+	if (figure->getKilledBy()) {
+		killedBy = new PFigureImpl(figure->getKilledBy());
+	}
+}
+
+void PFigureImpl::kill(PFigure *by) {
+	if (!by) throw std::invalid_argument("Cannot be killed by null pointer!");
+	if (!killedBy)
+		killedBy = new PFigureImpl(by);
+	else
+		throw std::invalid_argument("What is dead may never die");
+}
+
+PFigureImpl::PFigureImpl(PPoint *point, FigureType type, FigurePlayer player, unsigned int movesMade)
+		: PFigure(point,
+		          type,
+		          player,
+		          movesMade) {
 }

@@ -78,7 +78,7 @@ PFigure *PSaver::restorePFigure(const std::string &data) {
 		throw runtime_error("Got bad formatted savefile");
 
 
-	auto figure = new PFigure(new PPoint(x, y), type, player, moves);
+	auto figure = new PFigureImpl(new PPoint(x, y), type, player, moves);
 
 	if (i == 1) {
 		string data2;

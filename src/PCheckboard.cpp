@@ -5,16 +5,7 @@
 #define BUILD_PATH_INTRO if (!figure) throw invalid_argument("Cannot build path for null pointer");\
                         list<PPoint *> path;\
                         int x = figure->getPoint()->getX(), y = figure->getPoint()->getY();\
-                        auto side = figure->getPlayer(); \
-                        auto addOrDie = [&path, side, this](PPoint *p, bool pawnMode = false) {\
-                            if (canGo(p) && allowsNext(p, side, pawnMode)) {\
-                                path.push_back(p);\
-                                return true;\
-                            } else\
-                                delete p;\
-                            return false;\
-                        };\
-
+                        auto side = figure->getPlayer();
 
 
 #include "PCheckboard.h"
@@ -26,7 +17,7 @@
 using namespace std;
 
 PCheckboard::PCheckboard() {
-	initialize();
+	m_board.clear();
 }
 
 PCheckboard::~PCheckboard() {
@@ -34,9 +25,7 @@ PCheckboard::~PCheckboard() {
 }
 
 PFigure *PCheckboard::at(PPoint *point) {
-	if (!point) throw std::invalid_argument("Cannot find any figure at null point");
-	if (point->getX() < 0 || point->getX() > 7) return nullptr;
-	if (point->getY() < 0 || point->getY() > 7) return nullptr;
+	if (!point || !point->inBounds()) return nullptr;
 
 	for (const auto item: m_board)
 		if (item->getPoint()->isEquals(point))
@@ -46,12 +35,8 @@ PFigure *PCheckboard::at(PPoint *point) {
 
 bool PCheckboard::prepareMove(PPoint *from, PPoint *to) {
 	// check initial arguments
-	if (!from || !to) throw std::invalid_argument("Cannot move null pointer to another position");
+	if (!from || !to) throw invalid_argument("Cannot move null pointer to another position");
 	// recheck checkbox for ally figure
-
-	// check point bounds
-	if (!canGo(to) || !canGo(from))
-		return false;
 
 	auto figure = at(from);
 	if (!figure)
@@ -65,7 +50,7 @@ bool PCheckboard::prepareMove(PPoint *from, PPoint *to) {
 	// after we got path we perform actual movement if final point is on path
 	bool finalOnPath = false;
 	for (auto i: possibleMoves)
-		if (to->isEquals(i)) { /// cannot use std::find because we need isEquals method
+		if (to->isEquals(i)) { /// cannot use find because we need isEquals method
 			finalOnPath = true;
 			break;
 		}
@@ -155,15 +140,15 @@ PCheckboard::PCheckboard(list<PFigure *> figures) {
 	}
 }
 
-std::list<PFigure *> PCheckboard::getAllFigures() const {
-	std::list<PFigure *> out;
+list<PFigure *> PCheckboard::getAllFigures() const {
+	list<PFigure *> out;
 	out.insert(out.end(), m_board.begin(), m_board.end());
 	out.insert(out.end(), m_deadFigures.begin(), m_deadFigures.end());
 
 	return out;
 }
 
-std::list<PPoint *> PCheckboard::buildPath(PFigure *figure) {
+list<PPoint *> PCheckboard::buildPath(PFigure *figure) {
 	if (!figure) throw invalid_argument("Cannot build path for null pointer");
 
 	list<PPoint *> possibleMoves;
@@ -183,101 +168,103 @@ std::list<PPoint *> PCheckboard::buildPath(PFigure *figure) {
 	if (figure->isKing())
 		possibleMoves.splice(possibleMoves.end(), buildKingPath(figure));
 
+	possibleMoves.remove(nullptr); /// there may be so many of them, not really want to break any iterators
 	return possibleMoves;
 }
 
 
-bool PCheckboard::allowsNext(PPoint *p, FigurePlayer side, bool isPawn) {
+PPoint *PCheckboard::addOrDie(PPoint *p, FigurePlayer side, bool pawnMode) {
+	if (!p) throw invalid_argument("cannot addOrDie null pointer");
+
 	auto fig = at(p);
-	bool ret;
-	if (isPawn)
-		ret = fig && fig->getPlayer() != side;
+	bool differentSides = fig && fig->getPlayer() != side;
+	// pawns can capture on diagonals but not horizontally
+	bool allowNext = p->inBounds() && (pawnMode ? (fig && differentSides) : (!fig || differentSides));
+
+	if (allowNext)
+		return p;
 	else
-		ret = !fig || fig->getPlayer() != side;
-
-	return ret;
+		delete p;
+	return nullptr;
 }
 
-bool PCheckboard::canGo(PPoint *p) {
-	return p->getX() < 8 && p->getY() < 8;
-}
-
-
-std::list<PPoint *> PCheckboard::buildPawnPath(PFigure *figure) {
+list<PPoint *> PCheckboard::buildPawnPath(PFigure *figure) {
 	BUILD_PATH_INTRO
+	auto pawnY = side == FigurePlayer::Whites ? 1 : -1;
 
-	if (side == FigurePlayer::Whites) {
-		addOrDie(new PPoint(x, y + 1));
-		addOrDie(new PPoint(x + 1, y + 1), true);
-		addOrDie(new PPoint(x - 1, y + 1), true);
+	auto p = addOrDie(new PPoint(x, y + pawnY), side, false);        // cannot attack forward
+	if (p && !at(p)) {
+		path.push_back(p);
 		if (figure->getMovesCount() == 0)
-			addOrDie(new PPoint(x, y + 2));
-
-	} else {
-		addOrDie(new PPoint(x, y - 1));
-		addOrDie(new PPoint(x + 1, y - 1), true);
-		addOrDie(new PPoint(x - 1, y - 1), true);
-		if (figure->getMovesCount() == 0)
-			addOrDie(new PPoint(x, y - 2));
+			path.push_back(addOrDie(new PPoint(x, y + 2 * pawnY), side, false));
 	}
+	else
+		delete p;
+
+	path.push_back(addOrDie(new PPoint(x + 1, y + pawnY), side, true));
+	path.push_back(addOrDie(new PPoint(x - 1, y + pawnY), side, true));
+
 	return path;
 }
 
 
-std::list<PPoint *> PCheckboard::buildKnightPath(PFigure *figure) {
+list<PPoint *> PCheckboard::buildKnightPath(PFigure *figure) {
 	BUILD_PATH_INTRO
 
 	/// to the right
-	addOrDie(new PPoint(x + 2, y + 1));
-	addOrDie(new PPoint(x + 2, y - 1));
+	path.push_back(addOrDie(new PPoint(x + 2, y + 1), side, false));
+	path.push_back(addOrDie(new PPoint(x + 2, y - 1), side, false));
 
 	/// to the left
-	addOrDie(new PPoint(x - 2, y + 1));
-	addOrDie(new PPoint(x - 2, y - 1));
+	path.push_back(addOrDie(new PPoint(x - 2, y + 1), side, false));
+	path.push_back(addOrDie(new PPoint(x - 2, y - 1), side, false));
 
 	/// to the top
-	addOrDie(new PPoint(x + 1, y + 2));
-	addOrDie(new PPoint(x - 1, y + 2));
+	path.push_back(addOrDie(new PPoint(x + 1, y + 2), side, false));
+	path.push_back(addOrDie(new PPoint(x - 1, y + 2), side, false));
 
 	/// to the bottom
-	addOrDie(new PPoint(x + 1, y - 2));
-	addOrDie(new PPoint(x - 1, y - 2));
+	path.push_back(addOrDie(new PPoint(x + 1, y - 2), side, false));
+	path.push_back(addOrDie(new PPoint(x - 1, y - 2), side, false));
 
 	return path;
 }
 
-std::list<PPoint *> PCheckboard::buildRookPath(PFigure *figure) {
+list<PPoint *> PCheckboard::buildRookPath(PFigure *figure) {
 	BUILD_PATH_INTRO
-
 
 	/// to the right
 	for (int i = x + 1; i < 8; ++i) {
-		auto p = new PPoint(i, y);
-		if (!addOrDie(p)) break;
+		auto p = addOrDie(new PPoint(i, y), side, false);
+		if (!p) break;
+		path.push_back(p);
 		auto f = at(p);
 		if (f) break; // we cannot move through figures
 	}
 
 	/// to the left
 	for (int i = x - 1; i >= 0; --i) {
-		auto p = new PPoint(i, y);
-		if (!addOrDie(p)) break;
+		auto p = addOrDie(new PPoint(i, y), side, false);
+		if (!p) break;
+		path.push_back(p);
 		auto f = at(p);
 		if (f) break; // we cannot move through figures
 	}
 
 	/// to the top
 	for (int i = y + 1; i < 8; ++i) {
-		auto p = new PPoint(x, i);
-		if (!addOrDie(p)) break;
+		auto p = addOrDie(new PPoint(x, i), side, false);
+		if (!p) break;
+		path.push_back(p);
 		auto f = at(p);
 		if (f) break; // we cannot move through figures
 	}
 
 	/// to the bottom
 	for (int i = y - 1; i >= 0; --i) {
-		auto p = new PPoint(x, i);
-		if (!addOrDie(p)) break;
+		auto p = addOrDie(new PPoint(x, i), side, false);
+		if (!p) break;
+		path.push_back(p);
 		auto f = at(p);
 		if (f) break; // we cannot move through figures
 	}
@@ -295,14 +282,15 @@ std::list<PPoint *> PCheckboard::buildRookPath(PFigure *figure) {
 	return path;
 }
 
-std::list<PPoint *> PCheckboard::buildBishopPath(PFigure *figure) {
+list<PPoint *> PCheckboard::buildBishopPath(PFigure *figure) {
 	BUILD_PATH_INTRO
 
 	bool good = true;
 	/// to the right-top
 	for (int i = x + 1, j = y + 1; j < 8 && i < 8 && good; ++i, ++j) {
-		auto p = new PPoint(i, j);
-		good = addOrDie(p);
+		auto p = addOrDie(new PPoint(i, j), side, false);
+		path.push_back(p);
+		good = p != nullptr;
 		if (good) {
 			auto f = at(p);
 			if (f) good = false; // we cannot move through figures
@@ -312,8 +300,9 @@ std::list<PPoint *> PCheckboard::buildBishopPath(PFigure *figure) {
 	good = true;
 	/// to the left-top
 	for (int i = x - 1, j = y + 1; j < 8 && i >= 0 && good; --i, ++j) {
-		auto p = new PPoint(i, j);
-		good = addOrDie(p);
+		auto p = addOrDie(new PPoint(i, j), side, false);
+		path.push_back(p);
+		good = p != nullptr;
 		if (good) {
 			auto f = at(p);
 			if (f) good = false; // we cannot move through figures
@@ -323,8 +312,9 @@ std::list<PPoint *> PCheckboard::buildBishopPath(PFigure *figure) {
 	good = true;
 	/// to the right-bottom
 	for (int i = x + 1, j = y - 1; j >= 0 && i < 8 && good; ++i, --j) {
-		auto p = new PPoint(i, j);
-		good = addOrDie(p);
+		auto p = addOrDie(new PPoint(i, j), side, false);
+		path.push_back(p);
+		good = p != nullptr;
 		if (good) {
 			auto f = at(p);
 			if (f) good = false; // we cannot move through figures
@@ -335,8 +325,9 @@ std::list<PPoint *> PCheckboard::buildBishopPath(PFigure *figure) {
 	good = true;
 	/// to the left-bottom
 	for (int i = x - 1, j = y - 1; j >= 0 && i >= 0 && good; --i, --j) {
-		auto p = new PPoint(i, j);
-		good = addOrDie(p);
+		auto p = addOrDie(new PPoint(i, j), side, false);
+		path.push_back(p);
+		good = p != nullptr;
 		if (good) {
 			auto f = at(p);
 			if (f) good = false; // we cannot move through figures
@@ -346,20 +337,19 @@ std::list<PPoint *> PCheckboard::buildBishopPath(PFigure *figure) {
 	return path;
 }
 
-std::list<PPoint *> PCheckboard::buildKingPath(PFigure *figure) {
+list<PPoint *> PCheckboard::buildKingPath(PFigure *figure) {
 	BUILD_PATH_INTRO
 
+	path.push_back(addOrDie(new PPoint(x + 1, y), side, false));
+	path.push_back(addOrDie(new PPoint(x - 1, y), side, false));
 
-	addOrDie(new PPoint(x + 1, y));
-	addOrDie(new PPoint(x - 1, y));
+	path.push_back(addOrDie(new PPoint(x + 1, y + 1), side, false));
+	path.push_back(addOrDie(new PPoint(x - 1, y + 1), side, false));
+	path.push_back(addOrDie(new PPoint(x - 1, y - 1), side, false));
+	path.push_back(addOrDie(new PPoint(x + 1, y - 1), side, false));
 
-	addOrDie(new PPoint(x + 1, y + 1));
-	addOrDie(new PPoint(x - 1, y + 1));
-	addOrDie(new PPoint(x - 1, y - 1));
-	addOrDie(new PPoint(x + 1, y - 1));
-
-	addOrDie(new PPoint(x, y + 1));
-	addOrDie(new PPoint(x, y - 1));
+	path.push_back(addOrDie(new PPoint(x, y + 1), side, false));
+	path.push_back(addOrDie(new PPoint(x, y - 1), side, false));
 
 	auto rook1Spot = side == FigurePlayer::Whites ? new PPoint(0, 0) : new PPoint(0, 7);
 	auto rook2Spot = side == FigurePlayer::Whites ? new PPoint(7, 0) : new PPoint(7, 7);
@@ -486,7 +476,7 @@ list<PFigure *> PCheckboard::buildPawns(FigurePlayer side) {
 	auto pawnY = side == FigurePlayer::Whites ? 1 : 6;
 	for (int i = 0; i < 8; i++)
 		pawns.push_back(
-				new PFigure(
+				new PFigureImpl(
 						new PPoint(i, pawnY),
 						FigureType::Pawn, side));
 
@@ -495,39 +485,48 @@ list<PFigure *> PCheckboard::buildPawns(FigurePlayer side) {
 
 #define BUILD_FIGURES_Y auto y = side == FigurePlayer::Whites ? 7 : 0; // 7 for whites, 0 for blacks
 
-std::list<PFigure *> PCheckboard::buildRooks(FigurePlayer side) {
+list<PFigure *> PCheckboard::buildRooks(FigurePlayer side) {
 	BUILD_FIGURES_Y
 
 	return {
-			new PFigure(new PPoint(0, 7 - y), FigureType::Rook, side),
-			new PFigure(new PPoint(7, 7 - y), FigureType::Rook, side)
+			new PFigureImpl(new PPoint(0, 7 - y), FigureType::Rook, side),
+			new PFigureImpl(new PPoint(7, 7 - y), FigureType::Rook, side)
 	};
 }
 
-std::list<PFigure *> PCheckboard::buildKnights(FigurePlayer side) {
+list<PFigure *> PCheckboard::buildKnights(FigurePlayer side) {
 	BUILD_FIGURES_Y
 
 	return {
-			new PFigure(new PPoint(1, 7 - y), FigureType::Knight, side),
-			new PFigure(new PPoint(6, 7 - y), FigureType::Knight, side)
+			new PFigureImpl(new PPoint(1, 7 - y), FigureType::Knight, side),
+			new PFigureImpl(new PPoint(6, 7 - y), FigureType::Knight, side)
 	};
 }
 
-std::list<PFigure *> PCheckboard::buildBishops(FigurePlayer side) {
+list<PFigure *> PCheckboard::buildBishops(FigurePlayer side) {
 	BUILD_FIGURES_Y
 
-	return {new PFigure(new PPoint(2, 7 - y), FigureType::Bishop, side),
-	        new PFigure(new PPoint(5, 7 - y), FigureType::Bishop, side)};
+	return {new PFigureImpl(new PPoint(2, 7 - y), FigureType::Bishop, side),
+	        new PFigureImpl(new PPoint(5, 7 - y), FigureType::Bishop, side)};
 }
 
 PFigure *PCheckboard::buildQueen(FigurePlayer side) {
 	BUILD_FIGURES_Y
 
-	return new PFigure(new PPoint(3, 7 - y), FigureType::Queen, side);
+	return new PFigureImpl(new PPoint(3, 7 - y), FigureType::Queen, side);
 }
 
 PFigure *PCheckboard::buildKing(FigurePlayer side) {
 	BUILD_FIGURES_Y
 
-	return new PFigure(new PPoint(4, 7 - y), FigureType::King, side);
+	return new PFigureImpl(new PPoint(4, 7 - y), FigureType::King, side);
+}
+
+void PCheckboard::addFigure(PFigure *figure) {
+	m_board.push_back(figure);
+}
+
+void PCheckboard::removeFigure(PFigure *figure) {
+	m_board.remove(figure);
+	m_deadFigures.remove(figure);
 }

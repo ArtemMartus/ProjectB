@@ -21,8 +21,7 @@ PGame::PGame(PViewSide *v, PSaver *s) : view(v), saver(s) {
 }
 
 bool PGame::run() {
-	// who start?
-	checkboard->setTurn(true);
+	checkboard->initialize();
 
 	while (!checkboard->onePlayerLeft()) {
 
