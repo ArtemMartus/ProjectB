@@ -23,18 +23,6 @@
 #include <list>
 #include <stdexcept>
 
-#if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
-
-#define arc4random_uniform(x) rand()%x
-
-#elif defined (__linux__)
-
-/// ubuntu apt install libbsd-dev
-#include <bsd/stdlib.h>
-
-#endif
-
-
 using namespace std;
 
 PCheckboard::PCheckboard() {
@@ -100,7 +88,7 @@ bool PCheckboard::move(PPoint *from, PPoint *to) {
 	if (type == FigureType::Pawn && !m_deadFigures.empty()) {
 		int endY = side == FigurePlayer::Whites ? 7 : 0;
 		if (to->getY() == endY) {
-			int random_i = arc4random_uniform(m_deadFigures.size());
+			int random_i = rand() % m_deadFigures.size();
 			PFigure *undead = nullptr;
 			int temp = 0;
 			for (auto i: m_deadFigures) {
