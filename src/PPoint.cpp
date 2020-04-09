@@ -51,6 +51,11 @@ bool PPoint::operator!=(const PPoint &point) const {
 	return !(*this == point);
 }
 
+void PPoint::shift(int dx, int dy) {
+	x += dx;
+	y += dy;
+}
+
 ostream &operator<<(ostream &o, const PPoint &p) {
 	o << p.asString();
 	return o;

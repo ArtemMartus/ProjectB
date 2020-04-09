@@ -12,6 +12,7 @@
 #include "PFigure.h"
 #include "PPoint.h"
 #include <list>
+#include <set>
 #include <stdexcept>
 
 using namespace std;
@@ -501,6 +502,7 @@ list<shared_ptr<PFigure>> PCheckboard::getListOfFiguresAvailableForMove(FigurePl
 	/// TODO: Implement this method
 
 	/// [START ## CHECK 1 ## START] => produces list of figures that can protect king
+	/// --------------------------------###########----------------------------------
 	/// first of all we build huge list of points where our figures can move
 	/// next, we build huge list of turns our enemy can make
 	/// then we have to look for enemy turns that touch our king and place all the way from king to them figures to the list A
@@ -510,6 +512,7 @@ list<shared_ptr<PFigure>> PCheckboard::getListOfFiguresAvailableForMove(FigurePl
 	/// So, we need following lists: allyPoints, enemyPoints, checkmateEnemyPoints, interceptedPoints + capturingCheckerPoints
 
 	/// From last two lists we form a special list of ally figures that can protect our king
+	/// --------------------------------###########----------------------------------
 	/// [END ## CHECK 1 ## END]
 
 	/// butt then
@@ -518,6 +521,68 @@ list<shared_ptr<PFigure>> PCheckboard::getListOfFiguresAvailableForMove(FigurePl
 	/// previously made list
 	/// for each case we have to run modified CHECK_1 that returns boolean that helps us see if this particular movement
 	/// can potentially open way for some enemy entry to checkmate our fellow king.
+
+
+	/// CHECK_1 part
+
+	// ally & enemy figures
+	set<shared_ptr<PFigure>> allies, enemies;
+	shared_ptr<PFigure> ourKing;
+
+	for (const auto &i: m_board)
+		if (i->getPlayer() == side) {
+			allies.insert(i);
+			if (i->isKing())
+				ourKing = i;
+		} else
+			enemies.insert(i);
+
+	// build moves map
+	set<shared_ptr<PPoint>> allyMoves, interceptionPoint;
+
+	list<shared_ptr<PFigure>> mightyWarriors;
+
+	// trace back method
+	auto traceBack = [&](const shared_ptr<PFigure> &figure) -> list<shared_ptr<PPoint>> {
+		auto destinyPoint = figure->getPoint();
+		if (figure->isKnight())
+			return {destinyPoint}; // we cannot block knight's checkmate
+
+		long dx = (long)ourKing->getPoint()->getX() - destinyPoint->getX(),
+				dy = (long)ourKing->getPoint()->getY() - destinyPoint->getY();
+
+		int enemyAboveKing = dy < 0 ? -1 : dy == 0 ? 0 : 1;
+		int enemyOnTheRight = dx < 0 ? -1 : dx == 0 ? 0 : 1;
+
+		list<shared_ptr<PPoint>> tracedPath;
+		shared_ptr<PPoint> point = make_shared<PPoint>(ourKing->getPoint()->getX(), ourKing->getPoint()->getY());
+		while (*point != *destinyPoint) {
+			point->shift(enemyOnTheRight, enemyAboveKing);
+			tracedPath.push_back(make_shared<PPoint>(*point));
+		}
+		return tracedPath;
+	};
+
+	for (const auto &i: enemies)
+		// look for our king's position
+		for (const auto &pos: buildPath(i))
+			if (*pos == *ourKing->getPoint()) {
+				// trace back path from king to attacker
+				auto tracedPoints = traceBack(i);
+				interceptionPoint.insert(tracedPoints.begin(), tracedPoints.end());
+				break;
+			}
+
+
+	for (const auto &i: allies) {
+		auto path = buildPath(i); // look for protection
+		for (const auto &pos: path) {
+			/// TODO:  finish looking for interceptions
+		}
+		allyMoves.insert(path.begin(), path.end());
+	}
+	// next is simulation of one turn
+	// TODO: get it done
 
 	return list<shared_ptr<PFigure>>();
 }

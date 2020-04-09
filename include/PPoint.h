@@ -26,6 +26,8 @@ public:
 
 	virtual void setY(unsigned int);
 
+	virtual void shift(int dx, int dy);
+
 	virtual std::string asString() const;
 
 	virtual bool operator==(const PPoint &point) const;
