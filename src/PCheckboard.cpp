@@ -48,7 +48,7 @@ bool PCheckboard::prepareMove(const PPoint &from, const PPoint &to) {
 	// after we got path we perform actual movement if final point is on path
 	bool finalOnPath = false;
 	for (const auto &i: possibleMoves)
-		if (to == *i) { /// cannot use find because we need isEquals method
+		if (to == *i) {
 			finalOnPath = true;
 			break;
 		}
@@ -77,7 +77,7 @@ bool PCheckboard::prepareMove(const PPoint &from, const PPoint &to) {
 			undead->getPoint()->setY(to.getY());
 			m_deadFigures.remove(undead);
 			m_board.push_back(undead);
-			figure->kill(undead);
+			figure->capture(undead);
 			m_deadFigures.push_back(figure);
 			m_board.remove(figure);
 
@@ -146,8 +146,12 @@ list<shared_ptr<PPoint>> PCheckboard::buildPath(const PFigure &figure) {
 	if (figure.isBishop() || figure.isQueen())
 		rawMoves.splice(rawMoves.end(), buildBishopPath(figure));
 
-	if (figure.isKing())
+	if (figure.isKing()) {
 		rawMoves.splice(rawMoves.end(), buildKingPath(figure));
+		/// after that we perform search on enemies move abilities and
+		/// exclude those intercepting with our king's path points for rawMoves
+		/// TODO: exclude dangerous paths
+	}
 
 	/// there may be so many of them, not really want to break any iterators
 	list<shared_ptr<PPoint>> possibleMoves;
@@ -385,7 +389,7 @@ void PCheckboard::performMovement(const shared_ptr<PFigure> &figure, const PPoin
 
 	if (possibleFigure) {
 		if (possibleFigure->getPlayer() != figure->getPlayer()) {
-			possibleFigure->kill(figure);
+			possibleFigure->capture(figure);
 			m_board.remove(possibleFigure);
 			m_deadFigures.push_back(possibleFigure);
 
@@ -487,6 +491,31 @@ void PCheckboard::addFigure(const shared_ptr<PFigure> &figure) {
 void PCheckboard::removeFigure(const shared_ptr<PFigure> &figure) {
 	m_board.remove(figure);
 	m_deadFigures.remove(figure);
+}
+
+list<shared_ptr<PFigure>> PCheckboard::getListOfFiguresAvailableForMove(FigurePlayer side) const {
+	/// TODO: Implement this method
+
+	/// [START ## CHECK 1 ## START] => produces list of figures that can protect king
+	/// first of all we build huge list of points where our figures can move
+	/// next, we build huge list of turns our enemy can make
+	/// then we have to look for enemy turns that touch our king and place all the way from king to them figures to the list A
+	/// after that we look back at ally points list and choose only those that are in list A + those
+	/// that can capture checking figure
+
+	/// So, we need following lists: allyPoints, enemyPoints, checkmateEnemyPoints, interceptedPoints + capturingCheckerPoints
+
+	/// From last two lists we form a special list of ally figures that can protect our king
+	/// [END ## CHECK 1 ## END]
+
+	/// butt then
+
+	/// we have to build a whole new chessboard with already performed movement individually for each ally figure from
+	/// previously made list
+	/// for each case we have to run modified CHECK_1 that returns boolean that helps us see if this particular movement
+	/// can potentially open way for some enemy entry to checkmate our fellow king.
+
+	return list<shared_ptr<PFigure>>();
 }
 
 #endif

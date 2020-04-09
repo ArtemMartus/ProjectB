@@ -114,7 +114,7 @@ bool PFigure::isKing() const {
 	return type == FigureType::King;
 }
 
-void PFigure::kill(const shared_ptr<PFigure>& by) {
+void PFigure::capture(const shared_ptr<PFigure>& by) {
 	if (!killedBy)
 		killedBy = make_shared<PFigure>(*by);
 	else

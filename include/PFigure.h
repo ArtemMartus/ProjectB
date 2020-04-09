@@ -34,7 +34,7 @@ public:
 
 	virtual ~PFigure();
 
-	virtual void kill(const std::shared_ptr<PFigure> &by);
+	virtual void capture(const std::shared_ptr<PFigure> &by);
 
 	virtual void revive();
 

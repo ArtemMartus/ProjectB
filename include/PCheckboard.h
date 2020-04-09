@@ -69,6 +69,8 @@ public:
 
 	virtual std::list<std::shared_ptr<PPoint>> buildPath(const PFigure &figure);
 
+	virtual std::list<std::shared_ptr<PFigure>> getListOfFiguresAvailableForMove(FigurePlayer side) const;
+
 	/// returns true if move was made
 	virtual bool prepareMove(const PPoint &from, const PPoint &to);
 
