@@ -9,6 +9,14 @@ cmake-build-debug
 *.gch
 *.pch
 .idea
+CMakeFiles
+Testing
+Makefile
+CTestTestfile.cmake
+CMakeCache.txt
+cmake_install.cmake
+ProjectB
+Test
 
 # Compiled Dynamic libraries
 *.so
