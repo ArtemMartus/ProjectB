@@ -19,7 +19,7 @@ void PViewSide::renderText(string str) {
 }
 
 void PViewSide::renderFigures(PCheckboard *board) {
-	auto point = PPoint(0, 0);
+	auto point = make_shared<PPoint>(0, 0);
 	cout << "    ";
 	for (int j = 0; j < 8; j++) {
 		cout << setw(6) << j;
@@ -29,8 +29,8 @@ void PViewSide::renderFigures(PCheckboard *board) {
 		cout << i << "  |";
 		for (int j = 0; j < 8; j++) {
 			char ch = '.';
-			point.setX(j);
-			point.setY(i);
+			point->setX(j);
+			point->setY(i);
 			const auto figure = board->at(point);
 			if (figure)
 				ch = figure->asChar();
@@ -96,7 +96,7 @@ void PViewSide::renderSelectedInfo(shared_ptr<PFigure> pFigure) {
 void PViewSide::renderMayGoToPath(const list<shared_ptr<PPoint>>& list) {
 	cout << "May go to following points: ";
 	int index = 0;
-	for (auto i: list) {
+	for (const auto& i: list) {
 		cout << i->asString();
 		index++;
 		if (index < list.size())

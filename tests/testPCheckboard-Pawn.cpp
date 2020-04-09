@@ -2,15 +2,7 @@
 // Created by Artem Martus on 08.04.2020.
 //
 
-#include "catch.hpp"
-
-#include <PCheckboard.h>
-#include <PFigure.h>
-#include <PPoint.h>
-
-#include <memory>
-
-using namespace std;
+#include "PCheckboardTest.hpp"
 
 TEST_CASE_METHOD(PCheckboard, "Testing pawn-related internal methods of checkboard", "[checkboard-pawn]") {
 	WHEN("Build pawns create 8 entries") {
@@ -56,7 +48,7 @@ TEST_CASE_METHOD(PCheckboard, "Testing pawn-related internal methods of checkboa
 			                                   FigureType::Pawn, FigurePlayer::Whites);
 			addFigure(figure);
 
-			auto path = buildPath(*figure);
+			auto path = buildPath(figure);
 			REQUIRE(path.size() == 2); // top, x2Top
 
 			removeFigure(figure);
@@ -68,7 +60,7 @@ TEST_CASE_METHOD(PCheckboard, "Testing pawn-related internal methods of checkboa
 			addFigure(figure);
 			figure->moved();
 
-			auto path = buildPath(*figure);
+			auto path = buildPath(figure);
 			REQUIRE(path.size() == 1); // top
 
 			removeFigure(figure);
@@ -84,7 +76,7 @@ TEST_CASE_METHOD(PCheckboard, "Testing pawn-related internal methods of checkboa
 			addFigure(figure);
 			addFigure(ally);
 
-			auto path = buildPath(*figure);
+			auto path = buildPath(figure);
 
 			REQUIRE(path.empty()); // no way
 
@@ -105,7 +97,7 @@ TEST_CASE_METHOD(PCheckboard, "Testing pawn-related internal methods of checkboa
 			addFigure(figure);
 			addFigure(enemy);
 
-			auto path = buildPath(*figure);
+			auto path = buildPath(figure);
 
 			REQUIRE(path.empty()); // no way neither
 
@@ -126,7 +118,7 @@ TEST_CASE_METHOD(PCheckboard, "Testing pawn-related internal methods of checkboa
 			addFigure(figure);
 			addFigure(enemy);
 
-			auto path = buildPath(*figure);
+			auto path = buildPath(figure);
 
 			REQUIRE(path.size() == 3); // top and attack!
 
@@ -147,7 +139,7 @@ TEST_CASE_METHOD(PCheckboard, "Testing pawn-related internal methods of checkboa
 			addFigure(figure);
 			addFigure(enemy);
 
-			auto path = buildPath(*figure);
+			auto path = buildPath(figure);
 			REQUIRE(path.size() == 2); // top and attack!
 
 			removeFigure(figure);

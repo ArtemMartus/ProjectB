@@ -4,8 +4,8 @@
 
 #define BUILD_PATH_INTRO \
                         list<shared_ptr<PPoint>> path;\
-                        int x = figure.getPoint()->getX(), y = figure.getPoint()->getY();\
-                        auto side = figure.getPlayer();
+                        int x = figure->getPoint()->getX(), y = figure->getPoint()->getY();\
+                        auto side = figure->getPlayer();
 
 
 #include "PCheckboard.h"
@@ -24,16 +24,16 @@ PCheckboard::~PCheckboard() {
 	destroy();
 }
 
-shared_ptr<PFigure> PCheckboard::at(const PPoint &point) {
-	if (!point.inBounds()) return nullptr;
+shared_ptr<PFigure> PCheckboard::at(const shared_ptr<PPoint> &point) const {
+	if (!point || !point->inBounds()) return nullptr;
 
 	for (const auto &item: m_board)
-		if (*(item->getPoint()) == point)
+		if (*(item->getPoint()) == *point)
 			return item;
 	return nullptr;
 }
 
-bool PCheckboard::prepareMove(const PPoint &from, const PPoint &to) {
+bool PCheckboard::prepareMove(const shared_ptr<PPoint> &from, const shared_ptr<PPoint> &to) {
 	// recheck checkbox for ally figure
 
 	auto figure = at(from);
@@ -43,12 +43,12 @@ bool PCheckboard::prepareMove(const PPoint &from, const PPoint &to) {
 	const auto side = figure->getPlayer();
 	const auto type = figure->getType();
 
-	auto possibleMoves = buildPath(*figure);
+	auto possibleMoves = buildPath(figure);
 
 	// after we got path we perform actual movement if final point is on path
 	bool finalOnPath = false;
 	for (const auto &i: possibleMoves)
-		if (to == *i) {
+		if (*to == *i) {
 			finalOnPath = true;
 			break;
 		}
@@ -59,7 +59,7 @@ bool PCheckboard::prepareMove(const PPoint &from, const PPoint &to) {
 	// after the movement we update board figures if needed and check special morphs for pawns
 	if (type == FigureType::Pawn && !m_deadFigures.empty()) {
 		int endY = side == FigurePlayer::Whites ? 7 : 0;
-		if (to.getY() == endY) {
+		if (to->getY() == endY) {
 			shared_ptr<PFigure> undead;
 			int temp = -1; // get the most valuable from dead list
 			for (const auto &i: m_deadFigures) {
@@ -73,8 +73,8 @@ bool PCheckboard::prepareMove(const PPoint &from, const PPoint &to) {
 
 			undead->revive();
 			undead->moved();
-			undead->getPoint()->setX(to.getX());
-			undead->getPoint()->setY(to.getY());
+			undead->getPoint()->setX(to->getX());
+			undead->getPoint()->setY(to->getY());
 			m_deadFigures.remove(undead);
 			m_board.push_back(undead);
 			figure->capture(undead);
@@ -130,23 +130,25 @@ list<shared_ptr<PFigure>> PCheckboard::getAllFigures() const {
 	return out;
 }
 
-list<shared_ptr<PPoint>> PCheckboard::buildPath(const PFigure &figure) {
+list<shared_ptr<PPoint>> PCheckboard::buildPath(const shared_ptr<PFigure> &figure) const {
+	if (!figure) throw invalid_argument("Cannot build path for nullptr");
+
 	list<shared_ptr<PPoint>> rawMoves;
 
 	// build possible path for different figure types
-	if (figure.isPawn())
+	if (figure->isPawn())
 		rawMoves.splice(rawMoves.end(), buildPawnPath(figure));
 
-	if (figure.isRook() || figure.isQueen())
+	if (figure->isRook() || figure->isQueen())
 		rawMoves.splice(rawMoves.end(), buildRookPath(figure));
 
-	if (figure.isKnight())
+	if (figure->isKnight())
 		rawMoves.splice(rawMoves.end(), buildKnightPath(figure));
 
-	if (figure.isBishop() || figure.isQueen())
+	if (figure->isBishop() || figure->isQueen())
 		rawMoves.splice(rawMoves.end(), buildBishopPath(figure));
 
-	if (figure.isKing()) {
+	if (figure->isKing()) {
 		rawMoves.splice(rawMoves.end(), buildKingPath(figure));
 		/// after that we perform search on enemies move abilities and
 		/// exclude those intercepting with our king's path points for rawMoves
@@ -155,7 +157,7 @@ list<shared_ptr<PPoint>> PCheckboard::buildPath(const PFigure &figure) {
 
 	/// there may be so many of them, not really want to break any iterators
 	list<shared_ptr<PPoint>> possibleMoves;
-	for (const auto& i: rawMoves)
+	for (const auto &i: rawMoves)
 		if (i)
 			possibleMoves.push_back(i);
 
@@ -163,138 +165,142 @@ list<shared_ptr<PPoint>> PCheckboard::buildPath(const PFigure &figure) {
 }
 
 
-shared_ptr<PPoint> PCheckboard::addOrDie(const PPoint &p, FigurePlayer side, bool pawnMode) {
+shared_ptr<PPoint> PCheckboard::addOrDie(const shared_ptr<PPoint> &p, FigurePlayer side, bool pawnMode) const {
+	if (!p) return nullptr;
+
 	auto fig = at(p);
 	bool differentSides = fig && fig->getPlayer() != side;
 	// pawns can capture on diagonals but not horizontally
-	bool allowNext = p.inBounds() && (pawnMode ? (fig && differentSides) : (!fig || differentSides));
+	bool allowNext = p->inBounds() && (pawnMode ? (fig && differentSides) : (!fig || differentSides));
 
 	if (allowNext)
-		return make_shared<PPoint>(p);
+		return make_shared<PPoint>(*p);
 
 	return nullptr;
 }
 
-list<shared_ptr<PPoint>> PCheckboard::buildPawnPath(const PFigure &figure) {
+list<shared_ptr<PPoint>> PCheckboard::buildPawnPath(const shared_ptr<PFigure> &figure) const {
 	BUILD_PATH_INTRO
 	auto pawnY = side == FigurePlayer::Whites ? 1 : -1;
 
-	auto p = addOrDie(PPoint(x, y + pawnY), side, false);        // cannot attack forward
-	if (p && !at(*p)) {
+	auto p = addOrDie(make_shared<PPoint>(x, y + pawnY), side, false);        // cannot attack forward
+	if (p && !at(p)) {
 		path.push_back(p);
-		if (figure.getMovesCount() == 0)
-			path.push_back(addOrDie(PPoint(x, y + 2 * pawnY), side, false));
+		if (figure->getMovesCount() == 0)
+			path.push_back(addOrDie(make_shared<PPoint>(x, y + 2 * pawnY), side, false));
 	}
 
-	path.push_back(addOrDie(PPoint(x + 1, y + pawnY), side, true));
-	path.push_back(addOrDie(PPoint(x - 1, y + pawnY), side, true));
+	path.push_back(addOrDie(make_shared<PPoint>(x + 1, y + pawnY), side, true));
+	path.push_back(addOrDie(make_shared<PPoint>(x - 1, y + pawnY), side, true));
 
 	return path;
 }
 
 
-list<shared_ptr<PPoint>> PCheckboard::buildKnightPath(const PFigure &figure) {
+list<shared_ptr<PPoint>> PCheckboard::buildKnightPath(const shared_ptr<PFigure> &figure) const {
 	BUILD_PATH_INTRO
 
 	/// to the right
-	path.push_back(addOrDie(PPoint(x + 2, y + 1), side, false));
-	path.push_back(addOrDie(PPoint(x + 2, y - 1), side, false));
+	path.push_back(addOrDie(make_shared<PPoint>(x + 2, y + 1), side, false));
+	path.push_back(addOrDie(make_shared<PPoint>(x + 2, y - 1), side, false));
 
 	/// to the left
-	path.push_back(addOrDie(PPoint(x - 2, y + 1), side, false));
-	path.push_back(addOrDie(PPoint(x - 2, y - 1), side, false));
+	path.push_back(addOrDie(make_shared<PPoint>(x - 2, y + 1), side, false));
+	path.push_back(addOrDie(make_shared<PPoint>(x - 2, y - 1), side, false));
 
 	/// to the top
-	path.push_back(addOrDie(PPoint(x + 1, y + 2), side, false));
-	path.push_back(addOrDie(PPoint(x - 1, y + 2), side, false));
+	path.push_back(addOrDie(make_shared<PPoint>(x + 1, y + 2), side, false));
+	path.push_back(addOrDie(make_shared<PPoint>(x - 1, y + 2), side, false));
 
 	/// to the bottom
-	path.push_back(addOrDie(PPoint(x + 1, y - 2), side, false));
-	path.push_back(addOrDie(PPoint(x - 1, y - 2), side, false));
+	path.push_back(addOrDie(make_shared<PPoint>(x + 1, y - 2), side, false));
+	path.push_back(addOrDie(make_shared<PPoint>(x - 1, y - 2), side, false));
 
 	return path;
 }
 
-list<shared_ptr<PPoint>> PCheckboard::buildRookPath(const PFigure &figure) {
+list<shared_ptr<PPoint>> PCheckboard::buildRookPath(const shared_ptr<PFigure> &figure) const {
 	BUILD_PATH_INTRO
 
 	/// to the right
 	for (int i = x + 1; i < 8; ++i) {
-		auto p = addOrDie(PPoint(i, y), side, false);
+		auto p = addOrDie(make_shared<PPoint>(i, y), side, false);
 		if (!p) break;
 		path.push_back(p);
-		auto f = at(*p);
+		auto f = at(p);
 		if (f) break; // we cannot move through figures
 	}
 
 	/// to the left
 	for (int i = x - 1; i >= 0; --i) {
-		auto p = addOrDie(PPoint(i, y), side, false);
+		auto p = addOrDie(make_shared<PPoint>(i, y), side, false);
 		if (!p) break;
 		path.push_back(p);
-		auto f = at(*p);
+		auto f = at(p);
 		if (f) break; // we cannot move through figures
 	}
 
 	/// to the top
 	for (int i = y + 1; i < 8; ++i) {
-		auto p = addOrDie(PPoint(x, i), side, false);
+		auto p = addOrDie(make_shared<PPoint>(x, i), side, false);
 		if (!p) break;
 		path.push_back(p);
-		auto f = at(*p);
+		auto f = at(p);
 		if (f) break; // we cannot move through figures
 	}
 
 	/// to the bottom
 	for (int i = y - 1; i >= 0; --i) {
-		auto p = addOrDie(PPoint(x, i), side, false);
+		auto p = addOrDie(make_shared<PPoint>(x, i), side, false);
 		if (!p) break;
 		path.push_back(p);
-		auto f = at(*p);
+		auto f = at(p);
 		if (f) break; // we cannot move through figures
 	}
 
 	/// check castling
 
-	auto kingSpot = side == FigurePlayer::Whites ? PPoint(4, 0) : PPoint(4, 7);
+	auto kingSpot = side == FigurePlayer::Whites ?
+	                make_shared<PPoint>(4, 0)
+	                                             : make_shared<PPoint>(4, 7);
 
-	if (checkCastling(figure, *at(kingSpot)))
-		path.push_back(make_shared<PPoint>(kingSpot));
+	if (checkCastling(figure, at(kingSpot)))
+		path.push_back(kingSpot);
 
 	// return
 	return path;
 }
 
-list<shared_ptr<PPoint>> PCheckboard::buildBishopPath(const PFigure &figure) {
+list<shared_ptr<PPoint>> PCheckboard::buildBishopPath(const shared_ptr<PFigure> &figure) const {
 	BUILD_PATH_INTRO
 
 	bool good = true;
 	/// to the right-top
 	for (int i = x + 1, j = y + 1; j < 8 && i < 8 && good; ++i, ++j) {
-		auto p = addOrDie(PPoint(i, j), side, false);
+		auto p = addOrDie(make_shared<PPoint>(i, j), side, false);
 		path.push_back(p);
 		good = (p != nullptr) ?
-		       (at(*p) != nullptr)  // we cannot move through figures
+		       (at(p) != nullptr)  // we cannot move through figures
 		                      : false;
 	}
 
 	good = true;
 	/// to the left-top
 	for (int i = x - 1, j = y + 1; j < 8 && i >= 0 && good; --i, ++j) {
-		auto p = addOrDie(PPoint(i, j), side, false);
+		auto p = addOrDie(make_shared<PPoint>(i, j), side, false);
 		path.push_back(p);
 		good = (p != nullptr) ?
-		       (at(*p) != nullptr)  // we cannot move through figures
+		       (at(p) != nullptr)  // we cannot move through figures
 		                      : false;
 	}
 
 	good = true;
 	/// to the right-bottom
 	for (int i = x + 1, j = y - 1; j >= 0 && i < 8 && good; ++i, --j) {
-		auto p = addOrDie(PPoint(i, j), side, false);
+		auto p = addOrDie(make_shared<PPoint>(i, j), side, false);
 		path.push_back(p);
 		good = (p != nullptr) ?
-		       (at(*p) != nullptr)  // we cannot move through figures
+		       (at(p) != nullptr)  // we cannot move through figures
 		                      : false;
 	}
 
@@ -302,38 +308,38 @@ list<shared_ptr<PPoint>> PCheckboard::buildBishopPath(const PFigure &figure) {
 	good = true;
 	/// to the left-bottom
 	for (int i = x - 1, j = y - 1; j >= 0 && i >= 0 && good; --i, --j) {
-		auto p = addOrDie(PPoint(i, j), side, false);
+		auto p = addOrDie(make_shared<PPoint>(i, j), side, false);
 		path.push_back(p);
 		good = (p != nullptr) ?
-		       (at(*p) != nullptr)  // we cannot move through figures
+		       (at(p) != nullptr)  // we cannot move through figures
 		                      : false;
 	}
 
 	return path;
 }
 
-list<shared_ptr<PPoint>> PCheckboard::buildKingPath(const PFigure &figure) {
+list<shared_ptr<PPoint>> PCheckboard::buildKingPath(const shared_ptr<PFigure> &figure) const {
 	BUILD_PATH_INTRO
 
-	path.push_back(addOrDie(PPoint(x + 1, y), side, false));
-	path.push_back(addOrDie(PPoint(x - 1, y), side, false));
+	path.push_back(addOrDie(make_shared<PPoint>(x + 1, y), side, false));
+	path.push_back(addOrDie(make_shared<PPoint>(x - 1, y), side, false));
 
-	path.push_back(addOrDie(PPoint(x + 1, y + 1), side, false));
-	path.push_back(addOrDie(PPoint(x - 1, y + 1), side, false));
-	path.push_back(addOrDie(PPoint(x - 1, y - 1), side, false));
-	path.push_back(addOrDie(PPoint(x + 1, y - 1), side, false));
+	path.push_back(addOrDie(make_shared<PPoint>(x + 1, y + 1), side, false));
+	path.push_back(addOrDie(make_shared<PPoint>(x - 1, y + 1), side, false));
+	path.push_back(addOrDie(make_shared<PPoint>(x - 1, y - 1), side, false));
+	path.push_back(addOrDie(make_shared<PPoint>(x + 1, y - 1), side, false));
 
-	path.push_back(addOrDie(PPoint(x, y + 1), side, false));
-	path.push_back(addOrDie(PPoint(x, y - 1), side, false));
+	path.push_back(addOrDie(make_shared<PPoint>(x, y + 1), side, false));
+	path.push_back(addOrDie(make_shared<PPoint>(x, y - 1), side, false));
 
-	auto rook1 = side == FigurePlayer::Whites ? at(PPoint(0, 0)) : at(PPoint(0, 7));
-	auto rook2 = side == FigurePlayer::Whites ? at(PPoint(7, 0)) : at(PPoint(7, 7));
+	auto rook1 = side == FigurePlayer::Whites ? at(make_shared<PPoint>(0, 0)) : at(make_shared<PPoint>(0, 7));
+	auto rook2 = side == FigurePlayer::Whites ? at(make_shared<PPoint>(7, 0)) : at(make_shared<PPoint>(7, 7));
 
-	if (rook1 && checkCastling(figure, *rook1))
-		path.push_back(make_shared<PPoint>(*rook1->getPoint()));
+	if (rook1 && checkCastling(figure, rook1))
+		path.push_back(rook1->getPoint());
 
-	if (rook2 && checkCastling(figure, *rook2))
-		path.push_back(make_shared<PPoint>(*rook2->getPoint()));
+	if (rook2 && checkCastling(figure, rook2))
+		path.push_back(rook2->getPoint());
 
 	return path;
 }
@@ -346,21 +352,19 @@ bool PCheckboard::getWhitesTurn() const {
 	return whitesTurn;
 }
 
-bool PCheckboard::checkCastling(const PFigure &one, const PFigure &two) {
-	const PFigure *rook;
-	const PFigure *king;
-
-	if (!one.readyForCastling() || !two.readyForCastling()
-	    || one.getPlayer() != two.getPlayer())/// different sides
+bool PCheckboard::checkCastling(const shared_ptr<PFigure> &one, const shared_ptr<PFigure> &two) const {
+	if (!one || !one->readyForCastling() || !two || !two->readyForCastling()
+	    || one->getPlayer() != two->getPlayer())/// different sides
 		return false;  /// no castling
+	shared_ptr<PFigure> rook;
+	shared_ptr<PFigure> king;
 
-
-	if (one.isRook() && two.isKing()) {
-		rook = &one;
-		king = &two;
-	} else if (two.isRook() && one.isKing()) {
-		king = &one;
-		rook = &two;
+	if (one->isRook() && two->isKing()) {
+		rook = one;
+		king = two;
+	} else if (two->isRook() && one->isKing()) {
+		king = one;
+		rook = two;
 	} else
 		return false; /// no rook & king - no castling
 
@@ -370,9 +374,9 @@ bool PCheckboard::checkCastling(const PFigure &one, const PFigure &two) {
 	auto kingX = king->getPoint()->getX();
 	auto rookX = rook->getPoint()->getX();
 
-	auto point = PPoint(0, king->getPoint()->getY());
+	auto point = make_shared<PPoint>(0, king->getPoint()->getY());
 	for (auto i = min(kingX + 1, rookX + 1); i < max(kingX, rookX); ++i) {
-		point.setX(i);
+		point->setX(i);
 		if (!at(point)) continue;
 		castlingPathClear = false;
 		/// tmp is an obstacle for castling
@@ -382,7 +386,7 @@ bool PCheckboard::checkCastling(const PFigure &one, const PFigure &two) {
 	return castlingPathClear;
 }
 
-void PCheckboard::performMovement(const shared_ptr<PFigure> &figure, const PPoint &to) {
+void PCheckboard::performMovement(const shared_ptr<PFigure> &figure, const shared_ptr<PPoint> &to) {
 	if (!figure) throw invalid_argument("Cannot perform movement on nullptr");
 
 	auto possibleFigure = at(to);
@@ -411,13 +415,13 @@ void PCheckboard::performMovement(const shared_ptr<PFigure> &figure, const PPoin
 			king->moved();
 		}
 	} else {
-		figure->getPoint()->setX(to.getX());
-		figure->getPoint()->setY(to.getY());
+		figure->getPoint()->setX(to->getX());
+		figure->getPoint()->setY(to->getY());
 		figure->moved();
 	}
 }
 
-list<shared_ptr<PFigure>> PCheckboard::buildSide(FigurePlayer side) {
+list<shared_ptr<PFigure>> PCheckboard::buildSide(FigurePlayer side) const {
 	list<shared_ptr<PFigure>> figures;    // chessboard consists of 8x8 squares
 
 	figures.splice(figures.end(), buildPawns(side));    /// 8 pawns
@@ -430,7 +434,7 @@ list<shared_ptr<PFigure>> PCheckboard::buildSide(FigurePlayer side) {
 	return figures;
 }
 
-list<shared_ptr<PFigure>> PCheckboard::buildPawns(FigurePlayer side) {
+list<shared_ptr<PFigure>> PCheckboard::buildPawns(FigurePlayer side) const {
 	list<shared_ptr<PFigure>> pawns;
 	auto pawnY = side == FigurePlayer::Whites ? 1 : 6;
 	for (int i = 0; i < 8; i++)
@@ -444,7 +448,7 @@ list<shared_ptr<PFigure>> PCheckboard::buildPawns(FigurePlayer side) {
 
 #define BUILD_FIGURES_Y auto y = side == FigurePlayer::Whites ? 7 : 0; // 7 for whites, 0 for blacks
 
-list<shared_ptr<PFigure>> PCheckboard::buildRooks(FigurePlayer side) {
+list<shared_ptr<PFigure>> PCheckboard::buildRooks(FigurePlayer side) const {
 	BUILD_FIGURES_Y
 
 	return {
@@ -453,7 +457,7 @@ list<shared_ptr<PFigure>> PCheckboard::buildRooks(FigurePlayer side) {
 	};
 }
 
-list<shared_ptr<PFigure>> PCheckboard::buildKnights(FigurePlayer side) {
+list<shared_ptr<PFigure>> PCheckboard::buildKnights(FigurePlayer side) const {
 	BUILD_FIGURES_Y
 
 	return {
@@ -462,7 +466,7 @@ list<shared_ptr<PFigure>> PCheckboard::buildKnights(FigurePlayer side) {
 	};
 }
 
-list<shared_ptr<PFigure>> PCheckboard::buildBishops(FigurePlayer side) {
+list<shared_ptr<PFigure>> PCheckboard::buildBishops(FigurePlayer side) const {
 	BUILD_FIGURES_Y
 
 	return {
@@ -470,13 +474,13 @@ list<shared_ptr<PFigure>> PCheckboard::buildBishops(FigurePlayer side) {
 			make_shared<PFigure>(PPoint(5, 7 - y), FigureType::Bishop, side)};
 }
 
-shared_ptr<PFigure> PCheckboard::buildQueen(FigurePlayer side) {
+shared_ptr<PFigure> PCheckboard::buildQueen(FigurePlayer side) const {
 	BUILD_FIGURES_Y
 
 	return make_shared<PFigure>(PPoint(3, 7 - y), FigureType::Queen, side);
 }
 
-shared_ptr<PFigure> PCheckboard::buildKing(FigurePlayer side) {
+shared_ptr<PFigure> PCheckboard::buildKing(FigurePlayer side) const {
 	BUILD_FIGURES_Y
 
 	return make_shared<PFigure>(PPoint(4, 7 - y), FigureType::King, side);
