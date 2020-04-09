@@ -5,4 +5,8 @@
   <li><b>Ubuntu:</b> - no dependencies</li>
   <li><b>Win</b> - no dependencies</li>
 </ul>
+<p><code>cmake . && make</code></p>
+<h2>Test compiles to the file named 'Test'</h2>
+<p>Can be found in build/tests/ directory</p>
+
 <img height = '600' src='https://github.com/ArtemMartus/ProjectB/raw/master/valgrind.png'></img>
