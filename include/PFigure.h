@@ -5,6 +5,8 @@
 #ifndef PROJECTB_PFIGURE_H
 #define PROJECTB_PFIGURE_H
 
+#include <memory>
+
 class PPoint;
 
 enum FigureType : int {
@@ -15,21 +17,24 @@ enum FigurePlayer : int {
 	Whites = 0, Blacks
 };
 
-/// PFigure abstract class
+/// PFigure class
 class PFigure {
 protected:
-	PPoint *position;
-	PFigure *killedBy;
+	std::shared_ptr<PPoint> position;
+	std::shared_ptr<PFigure> killedBy;
 	FigurePlayer player;
 	FigureType type;
 	unsigned int movesMade;
 
 public:
-	PFigure(PPoint *point, FigureType type, FigurePlayer player, unsigned int movesMade = 0);
+	PFigure(const PPoint &point, FigureType type, FigurePlayer player,
+	        unsigned int movesMade = 0, std::shared_ptr<PFigure> killedBy = nullptr) noexcept;
+
+	PFigure(const PFigure &figure) noexcept;
 
 	virtual ~PFigure();
 
-	virtual void kill(PFigure *by) = 0;
+	virtual void kill(const std::shared_ptr<PFigure> &by);
 
 	virtual void revive();
 
@@ -55,25 +60,13 @@ public:
 
 	virtual FigurePlayer getPlayer() const;
 
-	virtual PPoint *getPoint() const;
+	virtual std::shared_ptr<PPoint> getPoint() const;
 
-	virtual PFigure *getKilledBy() const;
+	virtual std::shared_ptr<PFigure> getKilledBy() const;
 
 	virtual void moved();
 
 	virtual unsigned int getMovesCount() const;
-};
-
-/// Implementation figure
-class PFigureImpl : public PFigure {
-
-public:
-	explicit PFigureImpl(const PFigure *figure);
-
-	PFigureImpl(PPoint *point, FigureType type, FigurePlayer player, unsigned int movesMade = 0);
-
-	void kill(PFigure *by) override;
-
 };
 
 

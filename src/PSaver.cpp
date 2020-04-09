@@ -17,15 +17,16 @@ PCheckboard *PSaver::loadCheckboard() {
 	if (!file.is_open())  // stream failed to read int data
 		throw runtime_error("Couldn't open savefile");
 
-	list<PFigure *> objects;
+	list<shared_ptr<PFigure>> objects;
 	string str;
 	getline(file, str);
 
 	bool turn = atoi(str.c_str());
+	getline(file, str);
 
 	while (!file.eof()) {
-		getline(file, str);
 		objects.push_back(restorePFigure(str));
+		getline(file, str);
 	}
 	auto c = new PCheckboard(objects);
 	c->setTurn(turn);
@@ -43,7 +44,7 @@ void PSaver::saveCheckboard(PCheckboard *checkboard) {
 	file.close();
 }
 
-string PSaver::dumpPFigure(PFigure *fig) {
+string PSaver::dumpPFigure(const shared_ptr<PFigure> &fig) {
 	if (!fig) throw invalid_argument("Cannot dump null figure");
 	ostringstream stream;
 	stream << fig->getPlayer()
@@ -60,7 +61,7 @@ string PSaver::dumpPFigure(PFigure *fig) {
 	return stream.str();
 }
 
-PFigure *PSaver::restorePFigure(const std::string &data) {
+shared_ptr<PFigure> PSaver::restorePFigure(const std::string &data) {
 	istringstream stream(data);
 	auto player = FigurePlayer::Whites;
 	auto type = FigureType::Pawn;
@@ -78,14 +79,12 @@ PFigure *PSaver::restorePFigure(const std::string &data) {
 		throw runtime_error("Got bad formatted savefile");
 
 
-	auto figure = new PFigureImpl(new PPoint(x, y), type, player, moves);
+	auto figure = make_shared<PFigure>(PPoint(x, y), type, player, moves);
 
 	if (i == 1) {
-		string data2;
-		getline(stream, data2);
-		auto killedBy = restorePFigure(data2);
-		figure->kill(killedBy);
-		delete killedBy;
+		string killerInfo;
+		getline(stream, killerInfo);
+		figure->kill(restorePFigure(killerInfo));
 	}
 	return figure;
 }

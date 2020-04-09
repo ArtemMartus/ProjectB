@@ -19,8 +19,7 @@ void PViewSide::renderText(string str) {
 }
 
 void PViewSide::renderFigures(PCheckboard *board) {
-	auto point = new PPoint(0, 0);
-	PFigure *figure = nullptr;
+	auto point = PPoint(0, 0);
 	cout << "    ";
 	for (int j = 0; j < 8; j++) {
 		cout << setw(6) << j;
@@ -30,9 +29,9 @@ void PViewSide::renderFigures(PCheckboard *board) {
 		cout << i << "  |";
 		for (int j = 0; j < 8; j++) {
 			char ch = '.';
-			point->setX(j);
-			point->setY(i);
-			figure = board->at(point);
+			point.setX(j);
+			point.setY(i);
+			const auto figure = board->at(point);
 			if (figure)
 				ch = figure->asChar();
 			cout << setw(6) << ch;
@@ -44,7 +43,6 @@ void PViewSide::renderFigures(PCheckboard *board) {
 		cout << setw(6) << j;
 	}
 	cout << endl << endl;
-	delete point;
 }
 
 int PViewSide::askForAction(bool whitesTurn, const list<string> &actions) {
@@ -77,25 +75,25 @@ int PViewSide::inputAction(int lowBounds, int highBounds) {
 	return i;
 }
 
-PPoint *PViewSide::getPoint(const string &message) {
+shared_ptr<PPoint>PViewSide::getPoint(const string &message) {
 	unsigned int x, y;
 	cout << message << endl;
 	x = inputAction(0, 7);
 	y = inputAction(0, 7);
-	return new PPoint(x, y);
+	return make_shared<PPoint>(x, y);
 }
 
 void PViewSide::renderKillText(char i, char i1) {
 	cout << i << " got killed by " << i1 << endl;
 }
 
-void PViewSide::renderSelectedInfo(PFigure *pFigure) {
+void PViewSide::renderSelectedInfo(shared_ptr<PFigure> pFigure) {
 	cout << "Selected " << pFigure->asChar() << " of "
 	     << (pFigure->getPlayer() == FigurePlayer::Whites ? "Whites" : "Blacks")
 	     << " at " << pFigure->getPoint()->asString() << endl;
 }
 
-void PViewSide::renderMayGoToPath(const list<PPoint *>& list) {
+void PViewSide::renderMayGoToPath(const list<shared_ptr<PPoint>>& list) {
 	cout << "May go to following points: ";
 	int index = 0;
 	for (auto i: list) {

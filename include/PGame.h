@@ -5,6 +5,7 @@
 #ifndef PROJECTB_PGAME_H
 #define PROJECTB_PGAME_H
 
+#include <memory>
 
 class PViewSide;
 
@@ -22,7 +23,7 @@ protected:
 	PSaver *saver;
 	PCheckboard *checkboard;
 
-	PFigure *selectFigure();
+	std::shared_ptr<PFigure> selectFigure();
 
 public:
 	PGame(PViewSide *v, PSaver *saver);

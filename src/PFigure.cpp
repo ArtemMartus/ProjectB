@@ -4,23 +4,28 @@
 
 #include <stdexcept>
 #include <cctype>
+#include <utility>
 #include "PFigure.h"
 #include "PPoint.h"
 
-PFigure::PFigure(PPoint *a, FigureType b, FigurePlayer c, unsigned int moves)
-		: position(a), type(b), player(c), killedBy(nullptr), movesMade(moves) {
-	if (a == nullptr) throw std::invalid_argument("Figure must have its place!");
+using namespace std;
+
+PFigure::PFigure(const PFigure &figure) noexcept
+		: PFigure(*figure.getPoint(),
+		          figure.getType(), figure.getPlayer(),
+		          figure.getMovesCount(),
+		          figure.getKilledBy()) {
+
+}
+
+PFigure::PFigure(const PPoint &a, FigureType b, FigurePlayer c,
+                 unsigned int moves, shared_ptr<PFigure> k) noexcept
+		: position(new PPoint(a)), type(b), player(c), killedBy(std::move(k)), movesMade(moves) {
 }
 
 PFigure::~PFigure() {
-	if (killedBy) {
-		delete killedBy;
-		killedBy = nullptr;
-	}
-	if (position) {
-		delete position;
-		position = nullptr;
-	}
+	killedBy = nullptr;
+	position = nullptr;
 }
 
 bool PFigure::isAlive() const {
@@ -35,11 +40,11 @@ FigurePlayer PFigure::getPlayer() const {
 	return player;
 }
 
-PPoint *PFigure::getPoint() const {
+shared_ptr<PPoint> PFigure::getPoint() const {
 	return position;
 }
 
-PFigure *PFigure::getKilledBy() const {
+shared_ptr<PFigure> PFigure::getKilledBy() const {
 	return killedBy;
 }
 
@@ -70,7 +75,6 @@ char PFigure::asChar() const {
 }
 
 void PFigure::revive() {
-	delete killedBy;
 	killedBy = nullptr;
 }
 
@@ -110,29 +114,9 @@ bool PFigure::isKing() const {
 	return type == FigureType::King;
 }
 
-// further implementation
-
-PFigureImpl::PFigureImpl(const PFigure *figure)
-		: PFigure(new PPoint(figure->getPoint()),
-		          figure->getType(), figure->getPlayer(),
-		          figure->getMovesCount()) {
-
-	if (figure->getKilledBy()) {
-		killedBy = new PFigureImpl(figure->getKilledBy());
-	}
-}
-
-void PFigureImpl::kill(PFigure *by) {
-	if (!by) throw std::invalid_argument("Cannot be killed by null pointer!");
+void PFigure::kill(const shared_ptr<PFigure>& by) {
 	if (!killedBy)
-		killedBy = new PFigureImpl(by);
+		killedBy = make_shared<PFigure>(*by);
 	else
 		throw std::invalid_argument("What is dead may never die");
-}
-
-PFigureImpl::PFigureImpl(PPoint *point, FigureType type, FigurePlayer player, unsigned int movesMade)
-		: PFigure(point,
-		          type,
-		          player,
-		          movesMade) {
 }

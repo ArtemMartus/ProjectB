@@ -12,8 +12,7 @@
 #include <cstdlib>
 #include <list>
 
-using std::string;
-using std::list;
+using namespace std;
 
 
 PGame::PGame(PViewSide *v, PSaver *s) : view(v), saver(s) {
@@ -41,34 +40,30 @@ bool PGame::run() {
 			case 0: {
 
 				auto figure = selectFigure();
-				auto path = checkboard->buildPath(figure);
+				auto path = checkboard->buildPath(*figure);
 				while (path.empty()) {
 					view->renderText("No possible turns, select another figure");
 					figure = selectFigure();
-					path = checkboard->buildPath(figure);
+					path = checkboard->buildPath(*figure);
 				}
 
 				auto from = figure->getPoint();
 				view->renderSelectedInfo(figure);
 				view->renderMayGoToPath(path);
-				for (auto i: path)
-					delete i;
 				path.clear();
 
-				PPoint *to = view->getPoint("Enter point to where we move: (0-7 0-7)");
-				auto possibleFigure = checkboard->at(to);
-				while (!checkboard->prepareMove(from, to)) {
-					delete to;
+				auto to = view->getPoint("Enter point to where we move: (0-7 0-7)");
+				auto possibleFigure = checkboard->at(*to);
+				while (!checkboard->prepareMove(*from, *to)) {
 					view->renderText("Cannot move to that point! try another");
 					to = view->getPoint("to where we move: (0-7 0-7)");
-					possibleFigure = checkboard->at(to);
+					possibleFigure = checkboard->at(*to);
 				}
 				if (possibleFigure)
 					view->renderKillText(possibleFigure->asChar(), figure->asChar());
 				else
 					view->renderText("Move completed");
 
-				delete to;
 			}
 				break;
 			case 2:
@@ -104,11 +99,11 @@ PGame::~PGame() {
 }
 
 
-PFigure *PGame::selectFigure() {
-	PPoint *from = view->getPoint("Enter point from where to move: (0-7 0-7)");
-	PFigure *figure = checkboard->at(from);
+shared_ptr<PFigure> PGame::selectFigure() {
+	auto from = view->getPoint("Enter point from where to move: (0-7 0-7)");
+	auto figure = checkboard->at(*from);
 
-	auto ally = [&](PFigure *f) -> bool {
+	auto ally = [&](const shared_ptr<PFigure>& f) -> bool {
 		bool t = checkboard->getWhitesTurn();
 		if (!f) return false;
 		return !((f->getPlayer() == FigurePlayer::Whites && !t)
@@ -116,12 +111,10 @@ PFigure *PGame::selectFigure() {
 	};
 
 	while (!ally(figure)) {
-		delete from;
 		view->renderText("No ally figures found at specified point, try again");
 		from = view->getPoint("from where to move: (0-7 0-7)");
-		figure = checkboard->at(from);
+		figure = checkboard->at(*from);
 	}
-	delete from;
 
 	return figure;
 }

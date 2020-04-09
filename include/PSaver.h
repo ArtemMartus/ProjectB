@@ -6,6 +6,7 @@
 #define PROJECTB_PSAVER_H
 
 #include <string>
+#include <memory>
 
 class PCheckboard;
 
@@ -14,9 +15,9 @@ class PFigure;
 class PSaver {
 	std::string fileName;
 
-	std::string dumpPFigure(PFigure *fig);
+	std::string dumpPFigure(const std::shared_ptr<PFigure> &fig);
 
-	virtual PFigure *restorePFigure(const std::string &data);
+	virtual std::shared_ptr<PFigure> restorePFigure(const std::string &data);
 
 public:
 	explicit PSaver(std::string filename);

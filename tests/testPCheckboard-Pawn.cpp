@@ -8,6 +8,10 @@
 #include <PFigure.h>
 #include <PPoint.h>
 
+#include <memory>
+
+using namespace std;
+
 TEST_CASE_METHOD(PCheckboard, "Testing pawn-related internal methods of checkboard", "[checkboard-pawn]") {
 	WHEN("Build pawns create 8 entries") {
 		auto whitePawns = buildPawns(FigurePlayer::Whites);
@@ -41,122 +45,113 @@ TEST_CASE_METHOD(PCheckboard, "Testing pawn-related internal methods of checkboa
 		}
 
 		/// clean-up memory
-		whitePawns.splice(whitePawns.begin(), blackPawns);
-		for (auto i: whitePawns)
-			delete i;
+		blackPawns.clear();
 		whitePawns.clear();
 	}
 
-	/// mechanics
+		/// mechanics
 	SECTION("Path testing", "[buildPath]") {
 		WHEN("Has no moves yet") {
-			PFigure *figure = new PFigureImpl(new PPoint(4, 1),
-			                                  FigureType::Pawn, FigurePlayer::Whites);
+			auto figure = make_shared<PFigure>(PPoint(4, 1),
+			                                   FigureType::Pawn, FigurePlayer::Whites);
 			addFigure(figure);
 
-			auto path = buildPath(figure);
+			auto path = buildPath(*figure);
 			REQUIRE(path.size() == 2); // top, x2Top
 
 			removeFigure(figure);
-			delete figure;
 		}
 
 		WHEN("Has some moves") {
-			PFigure *figure = new PFigureImpl(new PPoint(4, 1),
-			                                  FigureType::Pawn, FigurePlayer::Whites);
+			auto figure = make_shared<PFigure>(PPoint(4, 1),
+			                                   FigureType::Pawn, FigurePlayer::Whites);
 			addFigure(figure);
 			figure->moved();
 
-			auto path = buildPath(figure);
+			auto path = buildPath(*figure);
 			REQUIRE(path.size() == 1); // top
 
 			removeFigure(figure);
-			delete figure;
 		}
 
 		WHEN("Ally in front") {
-			PFigure *figure = new PFigureImpl(new PPoint(4, 1),
-			                                  FigureType::Pawn, FigurePlayer::Whites),
-					*ally = new PFigureImpl(
-					new PPoint(figure->getPoint()->getX(), figure->getPoint()->getY() + 1),
-					figure->getType(), figure->getPlayer());
+			auto point = PPoint(4, 1);
+			auto figure = make_shared<PFigure>(point,
+			                                   FigureType::Pawn, FigurePlayer::Whites),
+					ally = make_shared<PFigure>(PPoint(point.getX(), point.getY() + 1),
+					                            figure->getType(), figure->getPlayer());
 
 			addFigure(figure);
 			addFigure(ally);
 
-			auto path = buildPath(figure);
+			auto path = buildPath(*figure);
 
 			REQUIRE(path.empty()); // no way
 
 			removeFigure(figure);
 			removeFigure(ally);
-			delete ally;
-			delete figure;
 		}
 
 		WHEN("Enemy in front") {
-			PFigure *figure = new PFigureImpl(new PPoint(4, 1),
-			                                  FigureType::Pawn, FigurePlayer::Whites);
+			auto point = PPoint(4, 1);
+			auto figure = make_shared<PFigure>(point,
+			                                   FigureType::Pawn, FigurePlayer::Whites);
 			auto enemySide =
 					figure->getPlayer() == FigurePlayer::Whites ? FigurePlayer::Blacks : figure->getPlayer();
-			PFigure *enemy = new PFigureImpl(
-					new PPoint(figure->getPoint()->getX(), figure->getPoint()->getY() + 1),
+			auto enemy = make_shared<PFigure>(
+					PPoint(point.getX(), point.getY() + 1),
 					figure->getType(), enemySide);
 
 			addFigure(figure);
 			addFigure(enemy);
 
-			auto path = buildPath(figure);
+			auto path = buildPath(*figure);
 
 			REQUIRE(path.empty()); // no way neither
 
 			removeFigure(figure);
 			removeFigure(enemy);
-			delete enemy;
-			delete figure;
 		}
 
 		WHEN("Enemy in front-right") {
-			PFigure *figure = new PFigureImpl(new PPoint(4, 1),
-			                                  FigureType::Pawn, FigurePlayer::Whites);
+			auto point = PPoint(4, 1);
+			auto figure = make_shared<PFigure>(point,
+			                                   FigureType::Pawn, FigurePlayer::Whites);
 			auto enemySide =
 					figure->getPlayer() == FigurePlayer::Whites ? FigurePlayer::Blacks : figure->getPlayer();
-			PFigure *enemy = new PFigureImpl(
-					new PPoint(figure->getPoint()->getX() + 1, figure->getPoint()->getY() + 1),
+			auto enemy = make_shared<PFigure>(
+					PPoint(point.getX() + 1, point.getY() + 1),
 					figure->getType(), enemySide);
 
 			addFigure(figure);
 			addFigure(enemy);
 
-			auto path = buildPath(figure);
+			auto path = buildPath(*figure);
 
 			REQUIRE(path.size() == 3); // top and attack!
 
 			removeFigure(figure);
 			removeFigure(enemy);
-			delete enemy;
-			delete figure;
 		}
 
 		WHEN("Enemy in front-left") {
-			PFigure *figure = new PFigureImpl(new PPoint(4, 1),
-			                                  FigureType::Pawn, FigurePlayer::Whites, 1);
+			auto point = PPoint(4, 1);
+			auto figure = make_shared<PFigure>(point,
+			                                   FigureType::Pawn, FigurePlayer::Whites, 1);
 			auto enemySide =
 					figure->getPlayer() == FigurePlayer::Whites ? FigurePlayer::Blacks : figure->getPlayer();
-			PFigure *enemy = new PFigureImpl(
-					new PPoint(figure->getPoint()->getX() - 1, figure->getPoint()->getY() + 1),
+			auto enemy = make_shared<PFigure>(
+					PPoint(point.getX() - 1, point.getY() + 1),
 					figure->getType(), enemySide);
 
 			addFigure(figure);
 			addFigure(enemy);
 
-			auto path = buildPath(figure);
+			auto path = buildPath(*figure);
 			REQUIRE(path.size() == 2); // top and attack!
 
 			removeFigure(figure);
 			removeFigure(enemy);
-			delete enemy;
-			delete figure;
 		}
 	}
 }

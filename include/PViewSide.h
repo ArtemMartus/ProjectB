@@ -7,6 +7,7 @@
 
 #include <list>
 #include <string>
+#include <memory>
 
 class PFigure;
 
@@ -25,13 +26,13 @@ public:
 
 	int askForAction(bool b, const std::list<std::string> &actions);
 
-	PPoint *getPoint(const std::string &message);
+	std::shared_ptr<PPoint> getPoint(const std::string &message);
 
 	void renderKillText(char victim, char killer);
 
-	void renderSelectedInfo(PFigure *pFigure);
+	void renderSelectedInfo(std::shared_ptr<PFigure> pFigure);
 
-	void renderMayGoToPath(const std::list<PPoint *> &list);
+	void renderMayGoToPath(const std::list<std::shared_ptr<PPoint>> &list);
 };
 
 

@@ -49,12 +49,12 @@ SCENARIO("Point coordinates can be accessed via getters and setters", "[PPoint]"
 			REQUIRE(point2.inBounds());
 
 			THEN("We got correct point comparison") {
-				REQUIRE(point.isEquals(&point2));
+				REQUIRE(point == point2);
 			}
 		} AND_WHEN("We create another point with 3 4 coordinates and call isEquals() method") {
 			PPoint point2(3, 4);
 			THEN("We got correct point comparison") {
-				REQUIRE(!point.isEquals(&point2));
+				REQUIRE(point != point2);
 			}
 		}
 	}

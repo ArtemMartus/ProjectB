@@ -9,26 +9,30 @@
 
 /// This class represents point on a chessboard
 class PPoint {
+protected:
 	unsigned int x, y;
 public:
-	explicit PPoint(const PPoint *point);
+	PPoint(const PPoint &point) noexcept;
 
-	PPoint(unsigned int x, unsigned int y);
+	PPoint(unsigned int x, unsigned int y) noexcept;
 
-	bool isEquals(PPoint *b);
+	virtual unsigned int getX() const;
 
-	unsigned int getX() const;
+	virtual unsigned int getY() const;
 
-	unsigned int getY() const;
+	virtual bool inBounds() const; /// says whether coordinates in [0;7] range
 
-	bool inBounds() const; /// says whether coordinates in [0;7] range
+	virtual void setX(unsigned int);
 
-	void setX(unsigned int);
+	virtual void setY(unsigned int);
 
-	void setY(unsigned int);
+	virtual std::string asString() const;
 
-	std::string asString();
+	virtual bool operator==(const PPoint &point) const;
+
+	virtual bool operator!=(const PPoint &point) const;
 };
 
+std::ostream &operator<<(std::ostream &o, const PPoint &p);
 
 #endif //PROJECTB_PPOINT_H

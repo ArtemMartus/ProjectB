@@ -8,10 +8,10 @@
 
 using namespace std;
 
-PPoint::PPoint(unsigned int a, unsigned int b) : x(a), y(b) {
+PPoint::PPoint(unsigned int a, unsigned int b) noexcept : x(a), y(b) {
 }
 
-PPoint::PPoint(const PPoint *point) : x(point->x), y(point->y) {
+PPoint::PPoint(const PPoint &point) noexcept : x(point.getX()), y(point.getY()) {
 
 }
 
@@ -23,11 +23,6 @@ unsigned int PPoint::getY() const {
 	return y;
 }
 
-bool PPoint::isEquals(PPoint *b) {
-	if (b == nullptr) throw invalid_argument("Cannot equals to null pointer!");
-	return x == b->getX() && y == b->getY();
-}
-
 void PPoint::setX(unsigned int i) {
 	x = i;
 }
@@ -36,7 +31,7 @@ void PPoint::setY(unsigned int i) {
 	y = i;
 }
 
-string PPoint::asString() {
+string PPoint::asString() const {
 	ostringstream s;
 	s << "(" << getX();
 	s << ", " << getY();
@@ -46,4 +41,17 @@ string PPoint::asString() {
 
 bool PPoint::inBounds() const {
 	return x < 8 && y < 8;
+}
+
+bool PPoint::operator==(const PPoint &b) const {
+	return x == b.getX() && y == b.getY();
+}
+
+bool PPoint::operator!=(const PPoint &point) const {
+	return !(*this == point);
+}
+
+ostream &operator<<(ostream &o, const PPoint &p) {
+	o << p.asString();
+	return o;
 }
