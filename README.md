@@ -9,4 +9,4 @@
 <h2>Test compiles to the file named 'Test'</h2>
 <p>Can be found in build/tests/ directory</p>
 
-<img height = '600' src='https://github.com/ArtemMartus/ProjectB/raw/master/valgrind.png'></img>
+<img style="max-height:600px" src='https://github.com/ArtemMartus/ProjectB/raw/master/valgrind.png'></img>
