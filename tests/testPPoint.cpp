@@ -2,9 +2,7 @@
 // Created by Artem Martus on 08.04.2020.
 //
 
-#include "catch.hpp"
-
-#include <PPoint.h>
+#include "Tests.hpp"
 
 SCENARIO("Point coordinates can be accessed via getters and setters", "[PPoint]") {
 	GIVEN("A PPoint with 0 0 coordinates") {

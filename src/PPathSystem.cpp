@@ -15,13 +15,17 @@
 #include <stdexcept>
 #include <set>
 
+#ifdef _WIN32
+#include <algorithm> // min max functions
+#endif
+
 using namespace std;
 
 PPathSystem::PPathSystem(std::list<std::shared_ptr<PFigure>>
                          b) noexcept : board(std::move(b)) {
 }
 
-PPathSystem::PPathSystem() noexcept = default;
+PPathSystem::PPathSystem() noexcept {} ;
 
 list<shared_ptr<PPoint>> PPathSystem::buildPath(const shared_ptr<PFigure> &figure) const {
 	if (!figure) throw invalid_argument("Cannot build path for nullptr");
