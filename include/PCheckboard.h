@@ -19,14 +19,7 @@ enum FigurePlayer : int;
 
 class PCheckboard {
 protected:
-
-#ifndef NDEBUG
-
-	virtual void addFigure(const std::shared_ptr<PFigure> &figure); /// for testing ONLY
-
-	virtual void removeFigure(const std::shared_ptr<PFigure> &figure); /// for testing ONLY
-#endif
-
+	
 	std::list<std::shared_ptr<PFigure>> m_board;
 	std::list<std::shared_ptr<PFigure>> m_deadFigures;
 	std::shared_ptr<PPathSystem> m_pathSystem;

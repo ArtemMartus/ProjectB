@@ -172,19 +172,7 @@ void PCheckboard::performMovement(const shared_ptr<PFigure> &figure, const share
 	}
 }
 
-#ifndef NDEBUG
-
-void PCheckboard::addFigure(const shared_ptr<PFigure> &figure) {
-	m_board.push_back(figure);
-}
-
-void PCheckboard::removeFigure(const shared_ptr<PFigure> &figure) {
-	m_board.remove(figure);
-	m_deadFigures.remove(figure);
-}
 
 bool PCheckboard::canMoveFrom(const shared_ptr<PFigure> &from) const {
 	return ! m_pathSystem->checkForAnyMovement(from).empty();
 }
-
-#endif
