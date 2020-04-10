@@ -38,9 +38,6 @@ protected:
 	virtual std::multimap<std::shared_ptr<PFigure>, std::shared_ptr<PPoint>>
 	getRawListOfMoves(FigurePlayer side) const;
 
-	virtual std::multimap<std::shared_ptr<PFigure>, std::shared_ptr<PPoint>>
-	getListOfAvailableMoves(FigurePlayer side) const;
-
 	virtual std::shared_ptr<PFigure> getKing(FigurePlayer side) const;
 
 public:
@@ -58,6 +55,9 @@ public:
 	virtual bool checkForMovement(const std::shared_ptr<PFigure> &from, const std::shared_ptr<PPoint> &to) const;
 
 	virtual std::list<std::shared_ptr<PPoint>> checkForAnyMovement(const std::shared_ptr<PFigure> &from) const;
+
+	virtual std::multimap<std::shared_ptr<PFigure>, std::shared_ptr<PPoint>>
+	getListOfAvailableMoves(FigurePlayer side) const;
 };
 
 

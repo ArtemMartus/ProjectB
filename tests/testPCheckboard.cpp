@@ -103,5 +103,16 @@ TEST_CASE_METHOD(PCheckboard, "Test if checkboard properly initialized", "[check
 			REQUIRE(blackKing);
 		}
 
+		THEN ("If we try to reach existing figure we get it") {
+			auto blackPawnSpot = make_shared<PPoint>(0, 6);
+			auto blackPawn = at(blackPawnSpot);
+			REQUIRE(blackPawn != nullptr);
+		}
+
+		THEN ("If we try to reach non-existing figure we don't get it") {
+			auto uselessSpot = make_shared<PPoint>(4, 4);
+			auto nothing = at(uselessSpot);
+			REQUIRE(nothing == nullptr);
+		}
 	}
 }

@@ -6,6 +6,7 @@
 #define PROJECTB_PGAME_H
 
 #include <memory>
+#include <set>
 
 class PViewSide;
 
@@ -19,19 +20,18 @@ class PFigure;
 
 class PGame {
 protected:
-	PViewSide *view;
-	PSaver *saver;
-	PCheckboard *checkboard;
+	std::shared_ptr<PViewSide> view;
+	std::shared_ptr<PSaver> saver;
+	std::shared_ptr<PCheckboard> checkboard;
 
-	std::shared_ptr<PFigure> selectFigure();
+	std::shared_ptr<PFigure> selectFigure(const std::set<std::shared_ptr<PFigure>> &set);
 
 public:
-	PGame(PViewSide *v, PSaver *saver);
+	PGame(std::shared_ptr<PViewSide> viewSide, std::shared_ptr<PSaver> saver) noexcept;
 
 	~PGame();
 
-	bool run();
-
+	virtual bool run();
 };
 
 

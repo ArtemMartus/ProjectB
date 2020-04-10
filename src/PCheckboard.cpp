@@ -118,6 +118,7 @@ PCheckboard::PCheckboard(const list<shared_ptr<PFigure>> &figures) noexcept {
 		else
 			m_deadFigures.push_back(item);
 	}
+	m_pathSystem = make_shared<PPathSystem>(m_board);
 }
 
 list<shared_ptr<PFigure>> PCheckboard::getAllFigures() const {
@@ -145,6 +146,7 @@ void PCheckboard::performMovement(const shared_ptr<PFigure> &figure, const share
 	if (possibleFigure) {
 		if (possibleFigure->getPlayer() != figure->getPlayer()) {
 			possibleFigure->capture(figure);
+			possibleFigure->moved();
 			m_board.remove(possibleFigure);
 			m_deadFigures.push_back(possibleFigure);
 
@@ -164,15 +166,18 @@ void PCheckboard::performMovement(const shared_ptr<PFigure> &figure, const share
 			rook->getPoint()->setX(king->getPoint()->getX() - 1 * leftCastling);
 			rook->moved();
 			king->moved();
+			return;
 		}
-	} else {
-		figure->getPoint()->setX(to->getX());
-		figure->getPoint()->setY(to->getY());
-		figure->moved();
 	}
+
+	figure->getPoint()->setX(to->getX());
+	figure->getPoint()->setY(to->getY());
+	figure->moved();
 }
 
 
-bool PCheckboard::canMoveFrom(const shared_ptr<PFigure> &from) const {
-	return !m_pathSystem->checkForAnyMovement(from).empty();
+multimap<shared_ptr<PFigure>, shared_ptr<PPoint>> PCheckboard::canMoveFrom(FigurePlayer side) const {
+	if (m_pathSystem->getBoard().size() != m_board.size())
+		m_pathSystem->setBoard(m_board);
+	return m_pathSystem->getListOfAvailableMoves(side);
 }

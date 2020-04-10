@@ -15,16 +15,16 @@ class PFigure;
 class PSaver {
 	std::string fileName;
 
-	std::string dumpPFigure(const std::shared_ptr<PFigure> &fig);
+	virtual std::string dumpPFigure(const std::shared_ptr<PFigure> &fig) const;
 
-	virtual std::shared_ptr<PFigure> restorePFigure(const std::string &data);
+	virtual std::shared_ptr<PFigure> restorePFigure(const std::string &data) const;
 
 public:
-	explicit PSaver(std::string filename);
+	explicit PSaver(std::string filename) noexcept;
 
-	void saveCheckboard(PCheckboard *checkboard);
+	virtual void saveCheckboard(const std::shared_ptr<PCheckboard> &checkboard) const;
 
-	PCheckboard *loadCheckboard();
+	virtual std::shared_ptr<PCheckboard> loadCheckboard() const;
 };
 
 

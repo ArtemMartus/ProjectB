@@ -48,7 +48,8 @@ public:
 
 	virtual bool onePlayerLeft() const;
 
-	virtual bool canMoveFrom(const std::shared_ptr<PFigure> &from) const;
+	virtual std::multimap<std::shared_ptr<PFigure>, std::shared_ptr<PPoint>>
+	canMoveFrom(FigurePlayer side) const;
 
 	// save-load needed functions
 	explicit PCheckboard(const std::list<std::shared_ptr<PFigure>> &figures) noexcept;

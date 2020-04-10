@@ -12,7 +12,7 @@
 
 using namespace std;
 
-PCheckboard *PSaver::loadCheckboard() {
+shared_ptr<PCheckboard> PSaver::loadCheckboard() const {
 	ifstream file(fileName);
 	if (!file.is_open())  // stream failed to read int data
 		throw runtime_error("Couldn't open savefile");
@@ -28,23 +28,25 @@ PCheckboard *PSaver::loadCheckboard() {
 		objects.push_back(restorePFigure(str));
 		getline(file, str);
 	}
-	auto c = new PCheckboard(objects);
+	auto c = make_shared<PCheckboard>(objects);
 	c->setTurn(turn);
 	return c;
 }
 
-void PSaver::saveCheckboard(PCheckboard *checkboard) {
+void PSaver::saveCheckboard(const shared_ptr<PCheckboard> &checkboard) const {
+	if (!checkboard) return;
+
 	ofstream file(fileName);
 	if (!file.is_open())  // stream failed to read int data
 		throw runtime_error("Couldn't write to savefile");
 
 	file << checkboard->getWhitesTurn() << "\n";
-	for (auto item: checkboard->getAllFigures())
+	for (const auto &item: checkboard->getAllFigures())
 		file << dumpPFigure(item) << "\n";
 	file.close();
 }
 
-string PSaver::dumpPFigure(const shared_ptr<PFigure> &fig) {
+string PSaver::dumpPFigure(const shared_ptr<PFigure> &fig) const {
 	if (!fig) throw invalid_argument("Cannot dump null figure");
 	ostringstream stream;
 	stream << fig->getPlayer()
@@ -61,7 +63,7 @@ string PSaver::dumpPFigure(const shared_ptr<PFigure> &fig) {
 	return stream.str();
 }
 
-shared_ptr<PFigure> PSaver::restorePFigure(const std::string &data) {
+shared_ptr<PFigure> PSaver::restorePFigure(const std::string &data) const {
 	istringstream stream(data);
 	auto player = FigurePlayer::Whites;
 	auto type = FigureType::Pawn;
@@ -89,5 +91,5 @@ shared_ptr<PFigure> PSaver::restorePFigure(const std::string &data) {
 	return figure;
 }
 
-PSaver::PSaver(string f) : fileName(f) {
+PSaver::PSaver(string f) noexcept : fileName(std::move(f)) {
 }

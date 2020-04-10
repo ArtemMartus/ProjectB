@@ -28,9 +28,9 @@ add_executable(Test-Queen-Path test-Queen-Path.cpp)
 target_link_libraries(Test-Queen-Path PChess)
 add_test(NAME QueenPath COMMAND Test-Queen-Path)
 
-add_executable(Test-PCheckboard-makeBoard testPCheckboard-buildAllFigures.cpp)
-target_link_libraries(Test-PCheckboard-makeBoard PChess)
-add_test(NAME BuildChessboard COMMAND Test-PCheckboard-makeBoard)
+add_executable(Test-PCheckboard testPCheckboard.cpp)
+target_link_libraries(Test-PCheckboard PChess)
+add_test(NAME BuildChessboard COMMAND Test-PCheckboard)
 
 add_executable(Test-PFigureFactory testPFigureFactory.cpp)
 target_link_libraries(Test-PFigureFactory PChess)

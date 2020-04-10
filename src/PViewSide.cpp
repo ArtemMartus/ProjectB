@@ -11,14 +11,15 @@
 #include <iterator>
 #include <algorithm>
 #include <climits> ///INT_MAX for linux
+#include <set>
 
 using namespace std;
 
-void PViewSide::renderText(string str) {
+void PViewSide::renderText(const string &str) const {
 	cout << str << endl;
 }
 
-void PViewSide::renderFigures(PCheckboard *board) {
+void PViewSide::renderFigures(const shared_ptr<PCheckboard> &board) const {
 	auto point = make_shared<PPoint>(0, 0);
 	cout << "    ";
 	for (int j = 0; j < 8; j++) {
@@ -45,7 +46,7 @@ void PViewSide::renderFigures(PCheckboard *board) {
 	cout << endl << endl;
 }
 
-int PViewSide::askForAction(bool whitesTurn, const list<string> &actions) {
+int PViewSide::askForAction(bool whitesTurn, const list<string> &actions) const {
 	cout << (whitesTurn ? "Whites," : "Blacks,") << " your action: ";
 	int index = 0;
 	for (const auto &item: actions) {
@@ -55,10 +56,10 @@ int PViewSide::askForAction(bool whitesTurn, const list<string> &actions) {
 	}
 	cout << endl;
 
-	return inputAction(0, actions.size() - 1);
+	return inputAction(0, (int) actions.size() - 1);
 }
 
-int PViewSide::inputAction(int lowBounds, int highBounds) {
+int PViewSide::inputAction(int lowBounds, int highBounds) const {
 	int i = -1;
 	cin >> i;
 	while (!cin.good()) {
@@ -74,7 +75,7 @@ int PViewSide::inputAction(int lowBounds, int highBounds) {
 	return i;
 }
 
-shared_ptr<PPoint> PViewSide::getPoint(const string &message) {
+shared_ptr<PPoint> PViewSide::getPoint(const string &message) const {
 	unsigned int x, y;
 	cout << message << endl;
 	x = inputAction(0, 7);
@@ -82,23 +83,35 @@ shared_ptr<PPoint> PViewSide::getPoint(const string &message) {
 	return make_shared<PPoint>(x, y);
 }
 
-void PViewSide::renderKillText(char i, char i1) {
+void PViewSide::renderKillText(char i, char i1) const {
 	cout << i << " got killed by " << i1 << endl;
 }
 
-void PViewSide::renderSelectedInfo(shared_ptr<PFigure> pFigure) {
+void PViewSide::renderSelectedInfo(const shared_ptr<PFigure> &pFigure) const {
 	cout << "Selected " << pFigure->asChar() << " of "
 	     << (pFigure->getPlayer() == FigurePlayer::Whites ? "Whites" : "Blacks")
 	     << " at " << pFigure->getPoint()->asString() << endl;
 }
 
-void PViewSide::renderMayGoToPath(const list<shared_ptr<PPoint>> &list) {
+void PViewSide::renderMayGoToPath(const list<shared_ptr<PPoint>> &list) const {
 	cout << "May go to following points: ";
 	int index = 0;
 	for (const auto &i: list) {
-		cout << i->asString();
+		cout << *i;
 		index++;
 		if (index < list.size())
+			cout << ", ";
+	}
+	cout << endl;
+}
+
+void PViewSide::renderFreeFigures(const set<std::shared_ptr<PFigure>> &set) const {
+	cout << "May choose figures with following coordinates: ";
+	int index = 0;
+	for (const auto &i: set) {
+		cout << *i->getPoint();
+		index++;
+		if (index < set.size())
 			cout << ", ";
 	}
 	cout << endl;

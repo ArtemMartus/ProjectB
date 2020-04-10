@@ -25,7 +25,13 @@ PPathSystem::PPathSystem(std::list<std::shared_ptr<PFigure>>
                          b) noexcept : board(std::move(b)) {
 }
 
+#ifdef _WIN32
 PPathSystem::PPathSystem() noexcept {};
+#else
+
+PPathSystem::PPathSystem() noexcept = default;
+
+#endif
 
 list<shared_ptr<PPoint>> PPathSystem::buildPath(const shared_ptr<PFigure> &figure) const {
 	if (!figure) throw invalid_argument("Cannot build path for nullptr");
@@ -47,9 +53,6 @@ list<shared_ptr<PPoint>> PPathSystem::buildPath(const shared_ptr<PFigure> &figur
 
 	if (figure->isKing()) {
 		rawMoves.splice(rawMoves.end(), buildKingPath(figure));
-		/// after that we perform search on enemies move abilities and
-		/// exclude those intercepting with our king's path points for rawMoves
-		/// TODO: exclude dangerous paths
 	}
 
 	/// there may be so many of them, not really want to break any iterators
@@ -307,7 +310,7 @@ bool PPathSystem::checkForMovement(const shared_ptr<PFigure> &figure, const shar
 	if (!finalOnPath) return false;
 
 	auto possibleFigure = at(to);
-	if (possibleFigure && !possibleFigure->isKing()) // king cannot be killed
+	if (possibleFigure && possibleFigure->isKing()) // king cannot be killed
 		return false;
 
 	auto moves = getListOfAvailableMoves(figure->getPlayer());
@@ -471,7 +474,12 @@ multimap<shared_ptr<PFigure>, shared_ptr<PPoint>> PPathSystem::getListOfAvailabl
 		figure->getPoint()->setY(figurePos->getY());
 	}
 
-	return filteredAllies;
+	multimap<shared_ptr<PFigure>, shared_ptr<PPoint>> doubleFilteredAllies;
+	for (const auto &i: filteredAllies)
+		if (i.second)
+			doubleFilteredAllies.insert(i);
+
+	return doubleFilteredAllies;
 }
 
 shared_ptr<PFigure> PPathSystem::getKing(FigurePlayer side) const {

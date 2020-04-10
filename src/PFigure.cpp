@@ -71,7 +71,7 @@ char PFigure::asChar() const {
 			break;
 	}
 
-	return player == FigurePlayer::Whites ? toupper(out) : out;
+	return player == Whites ? (char) toupper(out) : out;
 }
 
 void PFigure::revive() {
