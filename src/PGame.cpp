@@ -87,7 +87,6 @@ bool PGame::run() {
 			case 2:
 				try {
 					auto file = saver->loadCheckboard();
-					delete checkboard;
 					checkboard = file;
 					view->renderText("Game loaded");
 				} catch (std::exception &e) {
@@ -112,10 +111,7 @@ bool PGame::run() {
 }
 
 PGame::~PGame() {
-	if (checkboard) {
-		delete checkboard;
-		checkboard = nullptr;
-	}
+	checkboard = nullptr;
 }
 
 
