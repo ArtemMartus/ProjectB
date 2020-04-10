@@ -17,7 +17,7 @@
   <li>to load the game</li>
   <li>to surrender and quit</li>
 </ol>
-<p>Press 0 and you're prompted to type in one of suggested coordinates of an ally figure and then type to coordinate of where you want it to move. <img src="/screenshots/second.png"/></p>
+<p>Press 0 and you're prompted to type in one of suggested coordinates of an ally figure and then type coordinate of where you want it to move. <img src="/screenshots/second.png"/></p>
 <p>After successful move you'll see a message and new checkboard with moved unit. <img src="/screenshots/fourth.png"/></p>
 <hr>
 <h2>Build using CMake</h2>
