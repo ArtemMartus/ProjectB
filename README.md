@@ -6,7 +6,7 @@
   <li><b>Win</b> - no dependencies</li>
 </ul>
 <p><code>cmake . && make</code></p>
-<h2>Test compiles to the file named 'Test'</h2>
-<p>Can be found in build/tests/ directory</p>
+<h2>Tests can be run via CTest</h2>
+<p>Run all tests with command <code>make test</code> or <code>ctest</code> after building whole project</p>
 
-<img height = '600' src='https://github.com/ArtemMartus/ProjectB/raw/master/valgrind.png'></img>
+<img style="max-height:600px;" src='https://github.com/ArtemMartus/ProjectB/raw/master/valgrind.png'/>
