@@ -100,13 +100,14 @@ bool PGame::run() {
 				checkboard->initialize();
 				return run();
 			case 4:
-				break;
+				goto finish_game;
 			default:
 				throw runtime_error("how could you even get here????");
 		}
 
 		checkboard->setTurn(!checkboard->getWhitesTurn());
 	}
+	finish_game:
 	return !checkboard->getWhitesTurn();
 }
 

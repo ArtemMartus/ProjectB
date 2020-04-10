@@ -16,6 +16,6 @@ int main() {
 	} else {
 		view->renderText("Blacks won, congratulations!");
 	}
-	
+
 	return 0;
 }
