@@ -3,7 +3,14 @@
 <p>This is multiplayer chess game with all rules implemented (including castling/ checkmating).</p>
 <p>When you start an app you'll see following window: <img src='/screenshots/first.png'/></p>
 <p>In here we can see the chessboard with coordinates on edges and already placed figures on it.</p>
-<p>White figures rendered as capital letters where <b>P</b> = <b>P</b>awn, <b>R</b> = <b>R</b>ook, <b>N</b> = K<b>N</b>ight, <b>B</b> = <b>B</b>ishop, <b>Q</b> = <b>Q</b>ueen, <b>K</b> = <b>K</b>ing</p>
+<p>Figures are rendered as latin letters where</p>
+<p><b>P</b> = <b>P</b>awn, </p>
+<p><b>R</b> = <b>R</b>ook, </p>
+<p><b>N</b> = K<b>N</b>ight, </p> 
+<p><b>B</b> = <b>B</b>ishop, </p> 
+<p><b>Q</b> = <b>Q</b>ueen,  </p>
+<p><b>K</b> = <b>K</b>ing.</p>
+<p>White side have uppercase symbols and black side has lowercase symbols</p>
 <b>Type</b><ol start="0">
   <li>to move</li>
   <li>to save the game</li>
