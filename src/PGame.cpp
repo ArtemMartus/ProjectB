@@ -101,7 +101,7 @@ shared_ptr<PFigure> PGame::selectFigure() {
 	auto from = view->getPoint("Enter point from where to move: (0-7 0-7)");
 	auto figure = checkboard->at(from);
 
-	auto ally = [&](const shared_ptr<PFigure>& f) -> bool {
+	auto ally = [&](const shared_ptr<PFigure> &f) -> bool {
 		bool t = checkboard->getWhitesTurn();
 		if (!f) return false;
 		return !((f->getPlayer() == FigurePlayer::Whites && !t)

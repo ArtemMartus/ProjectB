@@ -61,8 +61,7 @@ int PViewSide::askForAction(bool whitesTurn, const list<string> &actions) {
 int PViewSide::inputAction(int lowBounds, int highBounds) {
 	int i = -1;
 	cin >> i;
-	while (!cin.good())
-	{
+	while (!cin.good()) {
 		cin.clear();
 		cin.ignore(INT_MAX, '\n');
 		cerr << "Please make sure you are typing number, try again: ";
@@ -75,7 +74,7 @@ int PViewSide::inputAction(int lowBounds, int highBounds) {
 	return i;
 }
 
-shared_ptr<PPoint>PViewSide::getPoint(const string &message) {
+shared_ptr<PPoint> PViewSide::getPoint(const string &message) {
 	unsigned int x, y;
 	cout << message << endl;
 	x = inputAction(0, 7);
@@ -93,10 +92,10 @@ void PViewSide::renderSelectedInfo(shared_ptr<PFigure> pFigure) {
 	     << " at " << pFigure->getPoint()->asString() << endl;
 }
 
-void PViewSide::renderMayGoToPath(const list<shared_ptr<PPoint>>& list) {
+void PViewSide::renderMayGoToPath(const list<shared_ptr<PPoint>> &list) {
 	cout << "May go to following points: ";
 	int index = 0;
-	for (const auto& i: list) {
+	for (const auto &i: list) {
 		cout << i->asString();
 		index++;
 		if (index < list.size())

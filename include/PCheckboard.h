@@ -19,7 +19,7 @@ enum FigurePlayer : int;
 
 class PCheckboard {
 protected:
-	
+
 	std::list<std::shared_ptr<PFigure>> m_board;
 	std::list<std::shared_ptr<PFigure>> m_deadFigures;
 	std::shared_ptr<PPathSystem> m_pathSystem;
@@ -48,7 +48,7 @@ public:
 
 	virtual bool onePlayerLeft() const;
 
-	virtual bool canMoveFrom(const std::shared_ptr<PFigure> & from) const;
+	virtual bool canMoveFrom(const std::shared_ptr<PFigure> &from) const;
 
 	// save-load needed functions
 	explicit PCheckboard(const std::list<std::shared_ptr<PFigure>> &figures) noexcept;

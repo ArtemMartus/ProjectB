@@ -25,7 +25,7 @@ PPathSystem::PPathSystem(std::list<std::shared_ptr<PFigure>>
                          b) noexcept : board(std::move(b)) {
 }
 
-PPathSystem::PPathSystem() noexcept {} ;
+PPathSystem::PPathSystem() noexcept {};
 
 list<shared_ptr<PPoint>> PPathSystem::buildPath(const shared_ptr<PFigure> &figure) const {
 	if (!figure) throw invalid_argument("Cannot build path for nullptr");

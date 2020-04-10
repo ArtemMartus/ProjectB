@@ -174,5 +174,5 @@ void PCheckboard::performMovement(const shared_ptr<PFigure> &figure, const share
 
 
 bool PCheckboard::canMoveFrom(const shared_ptr<PFigure> &from) const {
-	return ! m_pathSystem->checkForAnyMovement(from).empty();
+	return !m_pathSystem->checkForAnyMovement(from).empty();
 }

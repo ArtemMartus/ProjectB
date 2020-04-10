@@ -44,9 +44,9 @@ protected:
 	virtual std::shared_ptr<PFigure> getKing(FigurePlayer side) const;
 
 public:
-	PPathSystem() noexcept ;
+	PPathSystem() noexcept;
 
-	explicit PPathSystem(std::list<std::shared_ptr<PFigure>> board) noexcept ;
+	explicit PPathSystem(std::list<std::shared_ptr<PFigure>> board) noexcept;
 
 	std::list<std::shared_ptr<PPoint>> buildPath(const std::shared_ptr<PFigure> &figure) const;
 
