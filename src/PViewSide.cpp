@@ -9,8 +9,17 @@
 #include <iostream>
 #include <iomanip>
 #include <iterator>
+
+#ifdef _WIN32
+
 #include <algorithm>
+
+#elif __linux__
+
 #include <climits> ///INT_MAX for linux
+
+#endif
+
 #include <set>
 
 using namespace std;

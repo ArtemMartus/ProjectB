@@ -4,7 +4,12 @@
 
 #include "PPoint.h"
 #include <sstream>
+
+#ifdef _WIN32
+
 #include <stdexcept>
+
+#endif
 
 using namespace std;
 

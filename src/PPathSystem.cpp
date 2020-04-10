@@ -12,11 +12,13 @@
 #include "PPoint.h"
 #include <list>
 #include <map>
-#include <stdexcept>
 #include <set>
 
 #ifdef _WIN32
+
+#include <stdexcept> // std exceptions
 #include <algorithm> // min max functions
+
 #endif
 
 using namespace std;
@@ -26,7 +28,9 @@ PPathSystem::PPathSystem(std::list<std::shared_ptr<PFigure>>
 }
 
 #ifdef _WIN32
+
 PPathSystem::PPathSystem() noexcept {};
+
 #else
 
 PPathSystem::PPathSystem() noexcept = default;

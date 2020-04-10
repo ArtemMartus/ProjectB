@@ -9,7 +9,9 @@
 #include <list>
 #include "PPathSystem.h"
 #include "PFigureFactory.h"
+#ifdef _WIN32
 #include <stdexcept>
+#endif
 
 using namespace std;
 

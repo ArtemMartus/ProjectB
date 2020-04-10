@@ -9,10 +9,12 @@
 #include "PCheckboard.h"
 #include "PSaver.h"
 
-#include <cstdlib>
 #include <set>
 #include <list>
-#include <utility>
+
+#ifdef _WIN32
+#include <stdexcept>
+#endif
 
 using namespace std;
 

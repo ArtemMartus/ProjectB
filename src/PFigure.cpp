@@ -2,9 +2,12 @@
 // Created by Artem Martus on 06.04.2020.
 //
 
+#ifdef _WIN32
+
 #include <stdexcept>
-#include <cctype>
-#include <utility>
+
+#endif
+
 #include "PFigure.h"
 #include "PPoint.h"
 
