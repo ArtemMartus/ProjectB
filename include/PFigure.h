@@ -67,6 +67,10 @@ public:
 	virtual void moved();
 
 	virtual unsigned int getMovesCount() const;
+
+	virtual bool operator==(const PFigure &figure) const;
+
+	virtual bool operator!=(const PFigure &figure) const;
 };
 
 

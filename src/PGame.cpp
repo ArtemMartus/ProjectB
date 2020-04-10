@@ -40,17 +40,15 @@ bool PGame::run() {
 			case 0: {
 
 				auto figure = selectFigure();
-				auto path = checkboard->buildPath(figure);
-				while (path.empty()) {
+				auto path = checkboard->canMoveFrom(figure);
+				while (!path) {
 					view->renderText("No possible turns, select another figure");
 					figure = selectFigure();
-					path = checkboard->buildPath(figure);
+					path = checkboard->canMoveFrom(figure);
 				}
 
 				auto from = figure->getPoint();
 				view->renderSelectedInfo(figure);
-				view->renderMayGoToPath(path);
-				path.clear();
 
 				auto to = view->getPoint("Enter point to where we move: (0-7 0-7)");
 				auto possibleFigure = checkboard->at(to);

@@ -7,10 +7,13 @@
 
 #include <list>
 #include <memory>
+#include <map>
 
 class PPoint;
 
 class PFigure;
+
+class PPathSystem;
 
 enum FigurePlayer : int;
 
@@ -26,39 +29,12 @@ protected:
 
 	std::list<std::shared_ptr<PFigure>> m_board;
 	std::list<std::shared_ptr<PFigure>> m_deadFigures;
+	std::shared_ptr<PPathSystem> m_pathSystem;
 	bool whitesTurn = true;
 
 	void destroy();
 
-	virtual bool checkCastling(const std::shared_ptr<PFigure> &one, const std::shared_ptr<PFigure> &two) const;
-
-	virtual std::shared_ptr<PPoint> addOrDie(const std::shared_ptr<PPoint> &point, FigurePlayer side, bool pawnMode) const;
-
-	virtual std::list<std::shared_ptr<PPoint>> buildPawnPath(const std::shared_ptr<PFigure> &figure) const;
-
-	virtual std::list<std::shared_ptr<PPoint>> buildKnightPath(const std::shared_ptr<PFigure> &figure) const;
-
-	virtual std::list<std::shared_ptr<PPoint>> buildRookPath(const std::shared_ptr<PFigure> &figure) const;
-
-	virtual std::list<std::shared_ptr<PPoint>> buildBishopPath(const std::shared_ptr<PFigure> &figure) const;
-
-	virtual std::list<std::shared_ptr<PPoint>> buildKingPath(const std::shared_ptr<PFigure> &figure) const;
-
-	virtual std::list<std::shared_ptr<PFigure>> buildSide(FigurePlayer side) const;
-
 	virtual void performMovement(const std::shared_ptr<PFigure> &figure, const std::shared_ptr<PPoint> &toPlace);
-
-	virtual std::list<std::shared_ptr<PFigure>> buildPawns(FigurePlayer side) const;
-
-	virtual std::list<std::shared_ptr<PFigure>> buildRooks(FigurePlayer side) const;
-
-	virtual std::list<std::shared_ptr<PFigure>> buildKnights(FigurePlayer side) const;
-
-	virtual std::list<std::shared_ptr<PFigure>> buildBishops(FigurePlayer side) const;
-
-	virtual std::shared_ptr<PFigure> buildQueen(FigurePlayer side) const;
-
-	virtual std::shared_ptr<PFigure> buildKing(FigurePlayer side) const;
 
 public:
 	PCheckboard();
@@ -67,11 +43,7 @@ public:
 
 	virtual std::shared_ptr<PFigure> at(const std::shared_ptr<PPoint> &point) const;
 
-	virtual std::list<std::shared_ptr<PPoint>> buildPath(const std::shared_ptr<PFigure> &figure) const;
-
-	virtual std::list<std::shared_ptr<PFigure>> getListOfFiguresAvailableForMove(FigurePlayer side) const;
-
-	/// returns true if move was made
+	/// returns true if move was successfully made
 	virtual bool prepareMove(const std::shared_ptr<PPoint> &from, const std::shared_ptr<PPoint> &to);
 
 	/// create fresh figures and place them on board
@@ -82,6 +54,8 @@ public:
 	virtual bool getWhitesTurn() const;
 
 	virtual bool onePlayerLeft() const;
+
+	virtual bool canMoveFrom(const std::shared_ptr<PFigure> & from) const;
 
 	// save-load needed functions
 	explicit PCheckboard(const std::list<std::shared_ptr<PFigure>> &figures) noexcept;

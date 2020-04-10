@@ -20,7 +20,7 @@ PFigure::PFigure(const PFigure &figure) noexcept
 
 PFigure::PFigure(const PPoint &a, FigureType b, FigurePlayer c,
                  unsigned int moves, shared_ptr<PFigure> k) noexcept
-		: position(new PPoint(a)), type(b), player(c), killedBy(std::move(k)), movesMade(moves) {
+		: position(make_shared<PPoint>(a)), type(b), player(c), killedBy(std::move(k)), movesMade(moves) {
 }
 
 PFigure::~PFigure() {
@@ -114,9 +114,19 @@ bool PFigure::isKing() const {
 	return type == FigureType::King;
 }
 
-void PFigure::capture(const shared_ptr<PFigure>& by) {
+void PFigure::capture(const shared_ptr<PFigure> &by) {
 	if (!killedBy)
-		killedBy = make_shared<PFigure>(*by);
+		killedBy = by;
 	else
 		throw std::invalid_argument("What is dead may never die");
+}
+
+bool PFigure::operator==(const PFigure &figure) const {
+	return movesMade == figure.getMovesCount() &&
+	       type == figure.getType() &&
+	       player == figure.getPlayer();
+}
+
+bool PFigure::operator!=(const PFigure &figure) const {
+	return !(*this == figure);
 }
