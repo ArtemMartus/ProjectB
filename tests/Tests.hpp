@@ -5,7 +5,6 @@
 #ifndef PROJECTB_TESTS_HPP
 #define PROJECTB_TESTS_HPP
 
-#define CATCH_CONFIG_MAIN
 
 #include "catch.hpp"
 
