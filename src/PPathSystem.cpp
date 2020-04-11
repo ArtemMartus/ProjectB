@@ -448,7 +448,7 @@ multimap<shared_ptr<PFigure>, shared_ptr<PPoint>> PPathSystem::getListOfAvailabl
 
 		auto possibleFigure = at(spot);
 		if (possibleFigure)
-			possibleFigure->capture(figure);
+			possibleFigure->isCapturedBy(figure);
 
 		figure->getPoint()->setX(spot->getX());
 		figure->getPoint()->setY(spot->getY());

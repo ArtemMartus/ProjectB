@@ -52,38 +52,33 @@ bool PCheckboard::prepareMove(const shared_ptr<PPoint> &from, const shared_ptr<P
 	// make aliases for readability
 	const auto side = figure->getPlayer();
 	const auto type = figure->getType();
+	const int endY = figure->getPlayer() == Whites ? 7 : 0;
 
 	// after the movement we update board figures if needed and check special morphs for pawns
-	if (type == Pawn && !m_deadFigures.empty()) {
-		int endY = side == Whites ? 7 : 0;
-		if (to->getY() == endY) {
-			shared_ptr<PFigure> undead;
-			int temp = -1; // get the most valuable from dead list
-			for (const auto &i: m_deadFigures) {
-				if (i->getPlayer() != side) continue;
-				if (i->getType() > temp) {
-					undead = i;
-					temp = i->getType();
-				}
+	if (type == Pawn && to->getY() == endY) {
+		shared_ptr<PFigure> undead;
+		int temp = -1; // get the most valuable from dead list
+		for (const auto &i: m_deadFigures) {
+			if (i->getPlayer() != side) continue;
+			if (i->getType() > temp) {
+				undead = i;
+				temp = i->getType();
 			}
-
-			if (!undead) {
-				undead = PFigureFactory::buildQueen(figure->getPlayer());
-				undead->getPoint()->setX(to->getX());
-				undead->getPoint()->setY(to->getY());
-			}
-
-			undead->revive();
-			undead->moved();
-			undead->getPoint()->setX(to->getX());
-			undead->getPoint()->setY(to->getY());
-			m_deadFigures.remove(undead);
-			m_board.push_back(undead);
-			figure->capture(undead);
-			m_deadFigures.push_back(figure);
-			m_board.remove(figure);
-
 		}
+
+		if (!undead)
+			undead = PFigureFactory::buildQueen(figure->getPlayer());
+
+		undead->moved();
+		undead->revive();
+		m_deadFigures.remove(undead);
+
+		undead->getPoint()->setX(to->getX());
+		undead->getPoint()->setY(to->getY());
+		m_board.push_back(undead);
+		figure->isCapturedBy(undead);
+		m_board.remove(figure);
+		m_deadFigures.push_back(figure);
 	}
 
 	return true;
@@ -147,7 +142,7 @@ void PCheckboard::performMovement(const shared_ptr<PFigure> &figure, const share
 
 	auto possibleFigure = at(to);
 	if (figure->isKing() && !possibleFigure /// if we move with a king and possibleFigure wasn't found at that point,
-	/// but somehow we got into here than it means 99% that it's castling
+	    /// but somehow we got into here than it means 99% that it's castling
 	    && figure->isReadyForCastling()
 	    && abs((int) to->getX() - figure->getX()) > 1) {
 
@@ -163,7 +158,7 @@ void PCheckboard::performMovement(const shared_ptr<PFigure> &figure, const share
 
 	if (possibleFigure) {
 		if (possibleFigure->getPlayer() != figure->getPlayer()) {
-			possibleFigure->capture(figure);
+			possibleFigure->isCapturedBy(figure);
 			possibleFigure->moved();
 			m_board.remove(possibleFigure);
 			m_deadFigures.push_back(possibleFigure);

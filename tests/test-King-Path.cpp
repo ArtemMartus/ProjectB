@@ -6,7 +6,7 @@
 #include "Tests.hpp"
 
 TEST_CASE_METHOD(PPathSystem, "Test the king movement system") {
-	WHEN("Castling tets") {
+	WHEN("Castling test") {
 		auto king = PFigureFactory::buildKing(FigurePlayer::Whites);
 		auto enemyKing = PFigureFactory::buildKing(FigurePlayer::Blacks);
 		auto allyRooks = PFigureFactory::buildRooks(FigurePlayer::Whites);

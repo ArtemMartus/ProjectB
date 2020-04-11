@@ -114,5 +114,57 @@ TEST_CASE_METHOD(PCheckboard, "Test if checkboard properly initialized", "[check
 			auto nothing = at(uselessSpot);
 			REQUIRE(nothing == nullptr);
 		}
+	} WHEN("Pawn reaches end of a board") {
+		m_board.clear();
+		m_deadFigures.clear();
+
+		m_board.push_back(PFigureFactory::buildKing(Whites));
+		m_board.push_back(PFigureFactory::buildKing(Blacks));
+
+		auto pawn = make_shared<PFigure>(PPoint(6, 6), Pawn, Whites);
+		auto destinationPoint = make_shared<PPoint>(6, 7);
+		m_board.push_back(pawn);
+		auto deadQueen = make_shared<PFigure>(PPoint(1, 1), Queen, Whites);
+		auto deadRook = make_shared<PFigure>(PPoint(1, 2), Rook, Whites);
+
+		deadQueen->isCapturedBy(pawn);
+		deadRook->isCapturedBy(pawn);
+
+		THEN("we get queen if only queen is dead") {
+			m_deadFigures.push_back(deadQueen);
+			REQUIRE(prepareMove(pawn->getPoint(), destinationPoint));
+			REQUIRE(!pawn->isAlive());
+			REQUIRE(deadQueen->isAlive());
+			REQUIRE(*deadQueen->getPoint() == *destinationPoint);
+		} THEN("we get queen if queen and rook are dead") {
+			m_deadFigures.push_back(deadQueen);
+			m_deadFigures.push_back(deadRook);
+			REQUIRE(pawn->isAlive());
+
+			REQUIRE(prepareMove(pawn->getPoint(), destinationPoint));
+
+			REQUIRE_FALSE(pawn->isAlive());
+			REQUIRE(*pawn->getKilledBy() == *deadQueen);
+			REQUIRE(deadQueen->isAlive());
+			REQUIRE_FALSE(deadRook->isAlive());
+			REQUIRE(*deadQueen->getPoint() == *destinationPoint);
+		} THEN("we get a queen if only enemies are dead") {
+			m_deadFigures.push_back(make_shared<PFigure>(PPoint(1, 1), Knight, Blacks));
+			REQUIRE(prepareMove(pawn->getPoint(), destinationPoint));
+			auto newCreature = m_board.back();
+			REQUIRE_FALSE(pawn->isAlive());
+			REQUIRE(m_board.size() == 3); // new queen + 2 kings
+			REQUIRE(newCreature->isAlive());
+			REQUIRE(*newCreature->getPoint() == *destinationPoint);
+			REQUIRE(newCreature->isQueen());
+		} THEN("we get a queen if none are dead") {
+			REQUIRE(prepareMove(pawn->getPoint(), destinationPoint));
+			auto newCreature = m_board.back();
+			REQUIRE_FALSE(pawn->isAlive());
+			REQUIRE(m_board.size() == 3);
+			REQUIRE(newCreature->isAlive());
+			REQUIRE(*newCreature->getPoint() == *destinationPoint);
+			REQUIRE(newCreature->isQueen());
+		}
 	}
 }

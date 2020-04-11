@@ -86,7 +86,7 @@ shared_ptr<PFigure> PSaver::restorePFigure(const std::string &data) const {
 	if (i == 1) {
 		string killerInfo;
 		getline(stream, killerInfo);
-		figure->capture(restorePFigure(killerInfo));
+		figure->isCapturedBy(restorePFigure(killerInfo));
 	}
 	return figure;
 }
