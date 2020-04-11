@@ -61,5 +61,25 @@ TEST_CASE_METHOD(PPathSystem, "Test the king movement system") {
 			REQUIRE(moves.size() == 3); // king and the allyBishop
 			REQUIRE(bishopMoves.size() == 1); // only one turn to get that rook
 		}
+	} WHEN ("King stands near enemy queen") {
+		auto king = make_shared<PFigure>(PPoint(7, 7), FigureType::King, FigurePlayer::Blacks);
+		auto enemyKing = make_shared<PFigure>(PPoint(0, 0), FigureType::King, FigurePlayer::Whites);
+		auto enemyQueen = make_shared<PFigure>(PPoint(6, 6), FigureType::Queen, FigurePlayer::Whites);
+		setBoard({king, enemyQueen, enemyKing});
+
+
+		THEN("The only turn is to capture the queen") {
+			auto moves = getListOfAvailableMoves(FigurePlayer::Blacks);
+			REQUIRE(moves.size() == 1); // king attacks queen
+		}
+
+		AND_WHEN("Somebody is protecting the queen - it's checkmate indeed") {
+			auto pawn = make_shared<PFigure>(PPoint(5, 5), FigureType::Pawn, FigurePlayer::Whites);
+			setBoard({king, enemyQueen, enemyKing, pawn});
+			THEN ("No more moves for poor black king") {
+				auto moves = getListOfAvailableMoves(FigurePlayer::Blacks);
+				REQUIRE(moves.empty()); // checkmate situation
+			}
+		}
 	}
 }

@@ -393,11 +393,8 @@ multimap<shared_ptr<PFigure>, shared_ptr<PPoint>> PPathSystem::getRawListOfMoves
 			// look for 'pos' in interceptionPoints
 			if (!isInWanted) {
 				for (const auto &want: interceptionPoint) {
-
-					if (i->isKing() ? (*want != *pos) : (*want == *pos)) {
-						isInWanted = true;
-						break;
-					}
+					isInWanted = i->isKing() ? (!!at(want)) : (*want == *pos);
+					if (isInWanted) break;
 				}
 			}
 
