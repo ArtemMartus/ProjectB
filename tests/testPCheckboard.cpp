@@ -115,17 +115,15 @@ TEST_CASE_METHOD(PCheckboard, "Test if checkboard properly initialized", "[check
 			REQUIRE(nothing == nullptr);
 		}
 	} WHEN("Pawn reaches end of a board") {
-		m_board.clear();
-		m_deadFigures.clear();
+		auto allySide = Blacks, enemySide = Whites;
+		m_board.push_back(PFigureFactory::buildKing(allySide));
+		m_board.push_back(PFigureFactory::buildKing(enemySide));
 
-		m_board.push_back(PFigureFactory::buildKing(Whites));
-		m_board.push_back(PFigureFactory::buildKing(Blacks));
-
-		auto pawn = make_shared<PFigure>(PPoint(6, 6), Pawn, Whites);
-		auto destinationPoint = make_shared<PPoint>(6, 7);
+		auto pawn = make_shared<PFigure>(PPoint(2, 1), Pawn, allySide);
+		auto destinationPoint = make_shared<PPoint>(2, 0);
 		m_board.push_back(pawn);
-		auto deadQueen = make_shared<PFigure>(PPoint(1, 1), Queen, Whites);
-		auto deadRook = make_shared<PFigure>(PPoint(1, 2), Rook, Whites);
+		auto deadQueen = make_shared<PFigure>(PPoint(1, 1), Queen, allySide);
+		auto deadRook = make_shared<PFigure>(PPoint(1, 2), Rook, allySide);
 
 		deadQueen->isCapturedBy(pawn);
 		deadRook->isCapturedBy(pawn);
@@ -149,7 +147,7 @@ TEST_CASE_METHOD(PCheckboard, "Test if checkboard properly initialized", "[check
 			REQUIRE_FALSE(deadRook->isAlive());
 			REQUIRE(*deadQueen->getPoint() == *destinationPoint);
 		} THEN("we get a queen if only enemies are dead") {
-			m_deadFigures.push_back(make_shared<PFigure>(PPoint(1, 1), Knight, Blacks));
+			m_deadFigures.push_back(make_shared<PFigure>(PPoint(1, 1), Knight, enemySide));
 			REQUIRE(prepareMove(pawn->getPoint(), destinationPoint));
 			auto newCreature = m_board.back();
 			REQUIRE_FALSE(pawn->isAlive());
@@ -165,6 +163,31 @@ TEST_CASE_METHOD(PCheckboard, "Test if checkboard properly initialized", "[check
 			REQUIRE(newCreature->isAlive());
 			REQUIRE(*newCreature->getPoint() == *destinationPoint);
 			REQUIRE(newCreature->isQueen());
+		}
+	}
+
+	WHEN ("A pawn captures enemy at the end of a map") {
+		auto allySide = Blacks, enemySide = Whites;
+		m_board.push_back(PFigureFactory::buildKing(allySide));
+		m_board.push_back(PFigureFactory::buildKing(enemySide));
+
+		auto pawn = make_shared<PFigure>(PPoint(2, 1), Pawn, allySide);
+		auto destinationPoint = make_shared<PPoint>(1, 0);
+		auto enemyRook = make_shared<PFigure>(*destinationPoint, Rook, enemySide);
+
+		m_board.push_back(enemyRook);
+		m_board.push_back(pawn);
+
+		THEN("A pawn morphs into dead ally") {
+			REQUIRE(prepareMove(pawn->getPoint(), destinationPoint));
+			auto newCreature = m_board.back();
+			REQUIRE_FALSE(pawn->isAlive());
+			REQUIRE_FALSE(enemyRook->isAlive());
+			REQUIRE(m_board.size() == 3);
+			REQUIRE(newCreature->isAlive());
+			REQUIRE(*newCreature->getPoint() == *destinationPoint);
+			REQUIRE(newCreature->isQueen());
+			REQUIRE(newCreature->getPlayer() == allySide);
 		}
 	}
 }

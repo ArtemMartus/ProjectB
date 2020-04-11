@@ -74,13 +74,10 @@ shared_ptr<PPoint> PPathSystem::addOrDie(const shared_ptr<PPoint> &p, FigurePlay
 
 	auto fig = at(p);
 	bool differentSides = fig && fig->getPlayer() != side;
-	// pawns can capture on diagonals but not horizontally
+	// pawns can capture on diagonals but not vertically
 	bool allowNext = p->inBounds() && (pawnMode ? (fig && differentSides) : (!fig || differentSides));
 
-	if (allowNext)
-		return make_shared<PPoint>(*p);
-
-	return nullptr;
+	return allowNext ? p : nullptr;
 }
 
 list<shared_ptr<PPoint>> PPathSystem::buildPawnPath(const shared_ptr<PFigure> &figure) const {

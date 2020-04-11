@@ -80,6 +80,7 @@ bool PCheckboard::prepareMove(const shared_ptr<PPoint> &from, const shared_ptr<P
 		m_board.remove(figure);
 		m_deadFigures.push_back(figure);
 	}
+	m_pathSystem->setBoard(m_board); /// need to update pathfinding board after making morphs and castlings
 
 	return true;
 }
