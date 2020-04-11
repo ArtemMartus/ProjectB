@@ -164,12 +164,12 @@ list<shared_ptr<PPoint>> PPathSystem::buildRookPath(const shared_ptr<PFigure> &f
 
 	/// check castling
 
-	auto kingSpot = side == FigurePlayer::Whites ?
-	                make_shared<PPoint>(4, 0)
-	                                             : make_shared<PPoint>(4, 7);
+	auto king = side == FigurePlayer::Whites ?
+	            at(make_shared<PPoint>(4, 0))
+	                                         : at(make_shared<PPoint>(4, 7));
 
-	if (checkCastling(figure, at(kingSpot)))
-		path.push_back(kingSpot);
+	if (checkCastling(figure, king))
+		path.push_back(make_shared<PPoint>(king->getX(), y));
 
 	// return
 	return path;
@@ -232,18 +232,19 @@ list<shared_ptr<PPoint>> PPathSystem::buildKingPath(const shared_ptr<PFigure> &f
 	auto rook2 = side == FigurePlayer::Whites ? at(make_shared<PPoint>(7, 0)) : at(make_shared<PPoint>(7, 7));
 
 	if (rook1 && checkCastling(figure, rook1))
-		path.push_back(rook1->getPoint());
+		path.push_back(make_shared<PPoint>(x - 2, y));
 
 	if (rook2 && checkCastling(figure, rook2))
-		path.push_back(rook2->getPoint());
+		path.push_back(make_shared<PPoint>(x + 2, y));
 
 	return path;
 }
 
 
 bool PPathSystem::checkCastling(const shared_ptr<PFigure> &one, const shared_ptr<PFigure> &two) const {
-	if (!one || !one->readyForCastling() || !two || !two->readyForCastling()
-	    || one->getPlayer() != two->getPlayer())/// different sides
+	if (!one || !one->isReadyForCastling() || !two || !two->isReadyForCastling() /// not ready for castling
+	    || one->getPlayer() != two->getPlayer() || /// different sides
+	    (*one == *two && *one->getPoint() == *two->getPoint())) /// two same figures
 		return false;  /// no castling
 	shared_ptr<PFigure> rook;
 	shared_ptr<PFigure> king;
@@ -260,10 +261,10 @@ bool PPathSystem::checkCastling(const shared_ptr<PFigure> &one, const shared_ptr
 
 	bool castlingPathClear = true;
 
-	auto kingX = king->getPoint()->getX();
-	auto rookX = rook->getPoint()->getX();
+	auto kingX = king->getX();
+	auto rookX = rook->getX();
 
-	auto point = make_shared<PPoint>(0, king->getPoint()->getY());
+	auto point = make_shared<PPoint>(0, king->getY());
 	for (auto i = min(kingX + 1, rookX + 1); i < max(kingX, rookX); ++i) {
 		point->setX(i);
 		if (!at(point)) continue;
@@ -407,8 +408,6 @@ multimap<shared_ptr<PFigure>, shared_ptr<PPoint>> PPathSystem::getRawListOfMoves
 }
 
 multimap<shared_ptr<PFigure>, shared_ptr<PPoint>> PPathSystem::getListOfAvailableMoves(FigurePlayer side) const {
-	/// TODO: Implement this method
-
 	/// [START ## CHECK 1 ## START] => produces list of figures that can protect king
 	/// --------------------------------###########----------------------------------
 	/// first of all we build huge list of points where our figures can move
@@ -437,13 +436,14 @@ multimap<shared_ptr<PFigure>, shared_ptr<PPoint>> PPathSystem::getListOfAvailabl
 
 	// next is simulation of one turn
 
-	multimap<shared_ptr<PFigure>, shared_ptr<PPoint>> filteredAllies;
 	auto king = getKing(side);
 	if (!king) throw runtime_error("two kings must be at board!");
 
+	multimap<shared_ptr<PFigure>, shared_ptr<PPoint>> filteredAllies, doubleFilteredAllies;
+
 	for (const auto &i: allyForces) {
-		auto figure = i.first;
-		auto spot = i.second;
+		const auto &figure = i.first;
+		const auto &spot = i.second;
 		const auto figurePos = make_shared<PPoint>(*figure->getPoint());
 
 		auto possibleFigure = at(spot);
@@ -475,10 +475,27 @@ multimap<shared_ptr<PFigure>, shared_ptr<PPoint>> PPathSystem::getListOfAvailabl
 		figure->getPoint()->setY(figurePos->getY());
 	}
 
-	multimap<shared_ptr<PFigure>, shared_ptr<PPoint>> doubleFilteredAllies;
+	const auto leftCastlePoint = PPoint(king->getX() - 2, king->getY());
+	const auto rightCastlePoint = PPoint(king->getX() + 2, king->getY());
+	bool kingCanCastleLeft = false, kingCanCastleRight = false;
+
 	for (const auto &i: filteredAllies)
-		if (i.second)
+		if (*i.first == *king && *(i.first->getPoint()) == *king->getPoint()) {
+			if (*i.second == rightCastlePoint) kingCanCastleRight = true;
+			else if (*i.second == leftCastlePoint) kingCanCastleLeft = true;
+		}
+
+
+	for (const auto &i: filteredAllies) {
+		const auto &figure = i.first;
+		const bool kingCanCastle = figure->getX() < king->getX() ? kingCanCastleLeft : kingCanCastleRight;
+		const bool isKingNow = *i.first == *king && *(i.first->getPoint()) == *(king->getPoint());
+		const bool toInsert = isKingNow ||
+		                      (figure->isReadyForCastling() ? checkCastling(figure, king) && kingCanCastle :
+		                       true);
+		if (i.second && toInsert)
 			doubleFilteredAllies.insert(i);
+	}
 
 	return doubleFilteredAllies;
 }

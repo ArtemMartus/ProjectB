@@ -6,9 +6,11 @@
 #include "PCheckboard.h"
 #include "PFigure.h"
 #include "PPoint.h"
-#include <list>
 #include "PPathSystem.h"
 #include "PFigureFactory.h"
+#include <list>
+#include <cstdlib>
+
 #ifdef _WIN32
 #include <stdexcept>
 #endif
@@ -144,6 +146,20 @@ void PCheckboard::performMovement(const shared_ptr<PFigure> &figure, const share
 	if (!figure) throw invalid_argument("Cannot perform movement on nullptr");
 
 	auto possibleFigure = at(to);
+	if (figure->isKing() && !possibleFigure /// if we move with a king and possibleFigure wasn't found at that point,
+	/// but somehow we got into here than it means 99% that it's castling
+	    && figure->isReadyForCastling()
+	    && abs((int) to->getX() - figure->getX()) > 1) {
+
+		if (to->getX() < figure->getX())
+			to->setX(0);
+		else
+			to->setX(7);
+
+		possibleFigure = at(to); /// but we recheck if nothing is broken, who knows
+		if (!possibleFigure || !possibleFigure->isReadyForCastling() || !possibleFigure->isRook())
+			throw runtime_error("Something went wrong");
+	}
 
 	if (possibleFigure) {
 		if (possibleFigure->getPlayer() != figure->getPlayer()) {

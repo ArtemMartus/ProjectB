@@ -89,7 +89,7 @@ void PFigure::moved() {
 	++movesMade;
 }
 
-bool PFigure::readyForCastling() const {
+bool PFigure::isReadyForCastling() const {
 	return isAlive() && movesMade == 0 && (type == FigureType::Rook || type == FigureType::King);
 }
 
@@ -132,4 +132,14 @@ bool PFigure::operator==(const PFigure &figure) const {
 
 bool PFigure::operator!=(const PFigure &figure) const {
 	return !(*this == figure);
+}
+
+int PFigure::getX() const {
+	if (!position) return -1;
+	return (int)position->getX();
+}
+
+int PFigure::getY() const {
+	if (!position) return -1;
+	return (int)position->getY();
 }

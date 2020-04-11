@@ -6,6 +6,87 @@
 #include "Tests.hpp"
 
 TEST_CASE_METHOD(PPathSystem, "Test the king movement system") {
+	WHEN("Castling tets") {
+		auto king = PFigureFactory::buildKing(FigurePlayer::Whites);
+		auto enemyKing = PFigureFactory::buildKing(FigurePlayer::Blacks);
+		auto allyRooks = PFigureFactory::buildRooks(FigurePlayer::Whites);
+		auto leftRook = allyRooks.front();
+		auto rightRook = allyRooks.back();
+
+		auto kingLeftRookPoint = PPoint(king->getX() - 2, king->getY());
+		auto kingRightRookPoint = PPoint(king->getX() + 2, king->getY());
+
+		setBoard({king, enemyKing, leftRook, rightRook});
+
+		THEN("Can castle left and right") {
+			REQUIRE(checkCastling(leftRook, king)); // castling method doesn't count future enemy checks
+			REQUIRE(checkCastling(rightRook, king));
+			auto moves = getListOfAvailableMoves(Whites);
+			bool kingCastleLeft = false, kingCastleRight = false, leftRookCastle = false, rightRookCastle = false;
+			for (const auto &i: moves) {
+				if (*i.first == *king && *(i.first->getPoint()) == *(king->getPoint())) {
+					if (*i.second == kingLeftRookPoint) kingCastleLeft = true;
+					if (*i.second == kingRightRookPoint) kingCastleRight = true;
+				} else if (*i.first == *leftRook && *(i.first->getPoint()) == *(leftRook->getPoint())) {
+					if (*i.second == *king->getPoint()) leftRookCastle = true;
+				} else if (*i.first == *rightRook && *(i.first->getPoint()) == *(rightRook->getPoint())) {
+					if (*i.second == *king->getPoint()) rightRookCastle = true;
+				}
+			}
+			REQUIRE(kingCastleLeft);
+			REQUIRE(kingCastleRight);
+			REQUIRE(leftRookCastle);
+			REQUIRE(rightRookCastle);
+		}
+
+		AND_WHEN("We add enemy rook right above king coordinate at the end of left castling") {
+			auto rook = make_shared<PFigure>(PPoint(king->getX() - 2, 5), Rook, Blacks);
+			setBoard({king, enemyKing, leftRook, rightRook, rook});
+			THEN("We cant castle to the left") {
+				REQUIRE(checkCastling(leftRook, king));
+				REQUIRE(checkCastling(rightRook, king));
+				auto moves = getListOfAvailableMoves(Whites);
+
+				bool kingCastleLeft = false, kingCastleRight = false, leftRookCastle = false, rightRookCastle = false;
+				for (const auto &i: moves) {
+					if (*i.first == *king && *(i.first->getPoint()) == *(king->getPoint())) {
+						if (*i.second == kingLeftRookPoint) kingCastleLeft = true;
+						if (*i.second == kingRightRookPoint) kingCastleRight = true;
+					} else if (*i.first == *leftRook && *(i.first->getPoint()) == *(leftRook->getPoint())) {
+						if (*i.second == *king->getPoint()) leftRookCastle = true;
+					} else if (*i.first == *rightRook && *(i.first->getPoint()) == *(rightRook->getPoint())) {
+						if (*i.second == *king->getPoint()) rightRookCastle = true;
+					}
+				}
+				REQUIRE(!kingCastleLeft);
+				REQUIRE(kingCastleRight);
+				REQUIRE(!leftRookCastle);
+				REQUIRE(rightRookCastle);
+			}
+		}
+
+		AND_WHEN("We add enemy rook right above king coordinate at the end of right castling") {
+			auto rook = make_shared<PFigure>(PPoint(king->getX() + 2, 5), Rook, Blacks);
+			setBoard({king, enemyKing, leftRook, rightRook, rook});
+			auto moves = getListOfAvailableMoves(Whites);
+			bool kingCastleLeft = false, kingCastleRight = false, leftRookCastle = false, rightRookCastle = false;
+			for (const auto &i: moves) {
+				if (*i.first == *king && *(i.first->getPoint()) == *(king->getPoint())) {
+					if (*i.second == kingLeftRookPoint) kingCastleLeft = true;
+					if (*i.second == kingRightRookPoint) kingCastleRight = true;
+				} else if (*i.first == *leftRook && *(i.first->getPoint()) == *(leftRook->getPoint())) {
+					if (*i.second == *king->getPoint()) leftRookCastle = true;
+				} else if (*i.first == *rightRook && *(i.first->getPoint()) == *(rightRook->getPoint())) {
+					if (*i.second == *king->getPoint()) rightRookCastle = true;
+				}
+			}
+			REQUIRE(kingCastleLeft);
+			REQUIRE(!kingCastleRight);
+			REQUIRE(leftRookCastle);
+			REQUIRE(!rightRookCastle);
+		}
+	}
+
 	WHEN("There is one king in the middle of a map") {
 		auto king = make_shared<PFigure>(PPoint(3, 3), FigureType::King, FigurePlayer::Whites);
 		setBoard({king});

@@ -42,7 +42,7 @@ public:
 
 	virtual bool isAlive() const;
 
-	virtual bool readyForCastling() const;
+	virtual bool isReadyForCastling() const;
 
 	virtual bool isPawn() const;
 
@@ -61,6 +61,10 @@ public:
 	virtual FigurePlayer getPlayer() const;
 
 	virtual std::shared_ptr<PPoint> getPoint() const;
+
+	virtual int getX() const; //point alias
+
+	virtual int getY() const; //point alias
 
 	virtual std::shared_ptr<PFigure> getKilledBy() const;
 
