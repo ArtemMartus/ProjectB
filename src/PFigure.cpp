@@ -8,138 +8,109 @@
 
 #endif
 
-#include "PFigure.h"
-#include "PPoint.h"
+#include <PFigure.h>
+#include <PPoint.h>
 
 using namespace std;
 
 PFigure::PFigure(const PFigure &figure) noexcept
-		: PFigure(*figure.getPoint(),
-		          figure.getType(), figure.getPlayer(),
-		          figure.getMovesCount(),
-		          figure.getKilledBy()) {
-
-}
+    : PFigure(*figure.getPoint(), figure.getType(), figure.getPlayer(),
+              figure.getMovesCount(), figure.getKilledBy()) {}
 
 PFigure::PFigure(const PPoint &a, FigureType b, FigurePlayer c,
                  unsigned int moves, shared_ptr<PFigure> k) noexcept
-		: position(make_shared<PPoint>(a)), type(b), player(c), killedBy(std::move(k)), movesMade(moves) {
-}
+    : position(make_shared<PPoint>(a)),
+      killedBy(std::move(k)),
+      player(c),
+      type(b),
+      movesMade(moves) {}
 
 PFigure::~PFigure() {
-	killedBy = nullptr;
-	position = nullptr;
+    killedBy = nullptr;
+    position = nullptr;
 }
 
-bool PFigure::isAlive() const {
-	return killedBy == nullptr;
-}
+bool PFigure::isAlive() const { return killedBy == nullptr; }
 
-FigureType PFigure::getType() const {
-	return type;
-}
+FigureType PFigure::getType() const { return type; }
 
-FigurePlayer PFigure::getPlayer() const {
-	return player;
-}
+FigurePlayer PFigure::getPlayer() const { return player; }
 
-shared_ptr<PPoint> PFigure::getPoint() const {
-	return position;
-}
+shared_ptr<PPoint> PFigure::getPoint() const { return position; }
 
-shared_ptr<PFigure> PFigure::getKilledBy() const {
-	return killedBy;
-}
+shared_ptr<PFigure> PFigure::getKilledBy() const { return killedBy; }
 
 char PFigure::asChar() const {
-	char out = ' ';
-	switch (type) {
-		case Pawn:
-			out = 'p';
-			break;
-		case Rook:
-			out = 'r';
-			break;
-		case Knight:
-			out = 'n';
-			break;
-		case Bishop:
-			out = 'b';
-			break;
-		case Queen:
-			out = 'q';
-			break;
-		case King:
-			out = 'k';
-			break;
-	}
+    char out = ' ';
+    switch (type) {
+    case Pawn:
+        out = 'p';
+        break;
+    case Rook:
+        out = 'r';
+        break;
+    case Knight:
+        out = 'n';
+        break;
+    case Bishop:
+        out = 'b';
+        break;
+    case Queen:
+        out = 'q';
+        break;
+    case King:
+        out = 'k';
+        break;
+    }
 
-	return player == Whites ? (char) toupper(out) : out;
+    return player == Whites ? (char)toupper(out) : out;
 }
 
-void PFigure::revive() {
-	killedBy = nullptr;
-}
+void PFigure::revive() { killedBy = nullptr; }
 
-unsigned int PFigure::getMovesCount() const {
-	return movesMade;
-}
+unsigned int PFigure::getMovesCount() const { return movesMade; }
 
-void PFigure::moved() {
-	++movesMade;
-}
+void PFigure::moved() { ++movesMade; }
 
 bool PFigure::isReadyForCastling() const {
-	return isAlive() && movesMade == 0 && (type == FigureType::Rook || type == FigureType::King);
+    return isAlive() && movesMade == 0 &&
+            (type == FigureType::Rook || type == FigureType::King);
 }
 
-bool PFigure::isPawn() const {
-	return type == FigureType::Pawn;
-}
+bool PFigure::isPawn() const { return type == FigureType::Pawn; }
 
-bool PFigure::isRook() const {
-	return type == FigureType::Rook;
-}
+bool PFigure::isRook() const { return type == FigureType::Rook; }
 
-bool PFigure::isKnight() const {
-	return type == FigureType::Knight;
-}
+bool PFigure::isKnight() const { return type == FigureType::Knight; }
 
-bool PFigure::isBishop() const {
-	return type == FigureType::Bishop;
-}
+bool PFigure::isBishop() const { return type == FigureType::Bishop; }
 
-bool PFigure::isQueen() const {
-	return type == FigureType::Queen;
-}
+bool PFigure::isQueen() const { return type == FigureType::Queen; }
 
-bool PFigure::isKing() const {
-	return type == FigureType::King;
-}
+bool PFigure::isKing() const { return type == FigureType::King; }
 
 void PFigure::isCapturedBy(const shared_ptr<PFigure> &by) {
-	if (!killedBy)
-		killedBy = by;
-	else
-		throw std::invalid_argument("What is dead may never die");
+    if (!killedBy)
+        killedBy = by;
+    else
+        throw std::invalid_argument("What is dead may never die");
 }
 
 bool PFigure::operator==(const PFigure &figure) const {
-	return movesMade == figure.getMovesCount() &&
-	       type == figure.getType() &&
-	       player == figure.getPlayer();
+    return movesMade == figure.getMovesCount() && type == figure.getType() &&
+            player == figure.getPlayer();
 }
 
 bool PFigure::operator!=(const PFigure &figure) const {
-	return !(*this == figure);
+    return !(*this == figure);
 }
 
 int PFigure::getX() const {
-	if (!position) return -1;
-	return (int)position->getX();
+    if (!position) return -1;
+    return (int)position->getX();
 }
 
 int PFigure::getY() const {
-	if (!position) return -1;
-	return (int)position->getY();
+    if (!position) return -1;
+    return (int)position->getY();
 }

@@ -2,8 +2,7 @@
 // Created by Artem Martus on 09.04.2020.
 //
 
-#ifndef PROJECTB_TESTS_HPP
-#define PROJECTB_TESTS_HPP
+#pragma once
 
 
 #include "catch.hpp"
@@ -18,4 +17,4 @@
 
 using namespace std;
 
-#endif //PROJECTB_TESTS_HPP
+
