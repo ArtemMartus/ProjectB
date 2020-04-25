@@ -1,15 +1,22 @@
-cmake_minimum_required(VERSION 3.10)
-project(ProjectB)
+cmake_minimum_required (VERSION 3.10)
+project (ProjectB VERSION 1.0.2 LANGUAGES CXX)
 
-option(BUILD_TEST "Build the unit tests" ON)
+set (CMAKE_CXX_STANDARD 17)
 
-set(CMAKE_CXX_STANDARD 11)
+set (LIB_NAME PChessArchive)
+set (RUN_NAME Project_Chess)
+set (INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include)
 
-include_directories(include)
+add_library (${LIB_NAME})
+add_executable (${RUN_NAME})
 
-add_subdirectory(src)
+target_include_directories (${LIB_NAME} PUBLIC ${INCLUDE_DIR})
+target_link_libraries (${RUN_NAME} ${LIB_NAME})
 
-if (BUILD_TEST)
-    enable_testing()
-    add_subdirectory(tests)
+include (CTest)
+
+if (BUILD_TESTING)
+    add_subdirectory (tests)
 endif ()
+
+add_subdirectory (src)
