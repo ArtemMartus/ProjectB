@@ -6,8 +6,8 @@
 
 TEST_CASE("Testing  figure factory") {
     WHEN("Build pawns create 8 entries") {
-        auto whitePawns = PFigureFactory::buildPawns(FigurePlayer::Whites);
-        auto blackPawns = PFigureFactory::buildPawns(FigurePlayer::Blacks);
+        auto whitePawns = FigureFactory::buildPawns(FigurePlayer::Whites);
+        auto blackPawns = FigureFactory::buildPawns(FigurePlayer::Blacks);
 
         REQUIRE(whitePawns.size() == 8);
         REQUIRE(blackPawns.size() == 8);

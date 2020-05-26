@@ -7,11 +7,11 @@
 
 #include "catch.hpp"
 
-#include <PCheckboard.h>
-#include <PFigure.h>
-#include <PPoint.h>
-#include <PFigureFactory.h>
-#include <PPathSystem.h>
+#include <Checkboard.h>
+#include <Figure.h>
+#include <Point.h>
+#include <FigureFactory.h>
+#include <PathSystem.h>
 
 #include <memory>
 

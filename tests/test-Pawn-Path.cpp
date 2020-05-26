@@ -4,11 +4,11 @@
 
 #include "Tests.hpp"
 
-TEST_CASE_METHOD(PPathSystem,
+TEST_CASE_METHOD(PathSystem,
                  "Testing pawn-related internal methods of path system") {
     SECTION("Path testing", "[buildPath]") {
         WHEN("Has no moves yet") {
-            auto figure = make_shared<PFigure>(PPoint(4, 1), FigureType::Pawn,
+            auto figure = make_shared<Figure>(Point(4, 1), FigureType::Pawn,
                                                FigurePlayer::Whites);
 
             setBoard({figure});
@@ -17,7 +17,7 @@ TEST_CASE_METHOD(PPathSystem,
         }
 
         WHEN("Has some moves") {
-            auto figure = make_shared<PFigure>(PPoint(4, 1), FigureType::Pawn,
+            auto figure = make_shared<Figure>(Point(4, 1), FigureType::Pawn,
                                                FigurePlayer::Whites);
             setBoard({figure});
             figure->moved();
@@ -27,10 +27,10 @@ TEST_CASE_METHOD(PPathSystem,
         }
 
         WHEN("Ally in front") {
-            auto point = PPoint(4, 1);
+            auto point = Point(4, 1);
             auto figure =
-                    make_shared<PFigure>(point, FigureType::Pawn, FigurePlayer::Whites),
-                    ally = make_shared<PFigure>(PPoint(point.getX(), point.getY() + 1),
+                    make_shared<Figure>(point, FigureType::Pawn, FigurePlayer::Whites),
+                    ally = make_shared<Figure>(Point(point.getX(), point.getY() + 1),
                                                 figure->getType(), figure->getPlayer());
 
             setBoard({figure, ally});
@@ -41,13 +41,13 @@ TEST_CASE_METHOD(PPathSystem,
         }
 
         WHEN("Enemy in front") {
-            auto point = PPoint(4, 1);
+            auto point = Point(4, 1);
             auto figure =
-                    make_shared<PFigure>(point, FigureType::Pawn, FigurePlayer::Whites);
+                    make_shared<Figure>(point, FigureType::Pawn, FigurePlayer::Whites);
             auto enemySide = figure->getPlayer() == FigurePlayer::Whites
                     ? FigurePlayer::Blacks
                     : figure->getPlayer();
-            auto enemy = make_shared<PFigure>(PPoint(point.getX(), point.getY() + 1),
+            auto enemy = make_shared<Figure>(Point(point.getX(), point.getY() + 1),
                                               figure->getType(), enemySide);
 
             setBoard({figure, enemy});
@@ -58,14 +58,14 @@ TEST_CASE_METHOD(PPathSystem,
         }
 
         WHEN("Enemy in front-right") {
-            auto point = PPoint(4, 1);
+            auto point = Point(4, 1);
             auto figure =
-                    make_shared<PFigure>(point, FigureType::Pawn, FigurePlayer::Whites);
+                    make_shared<Figure>(point, FigureType::Pawn, FigurePlayer::Whites);
             auto enemySide = figure->getPlayer() == FigurePlayer::Whites
                     ? FigurePlayer::Blacks
                     : figure->getPlayer();
             auto enemy =
-                    make_shared<PFigure>(PPoint(point.getX() + 1, point.getY() + 1),
+                    make_shared<Figure>(Point(point.getX() + 1, point.getY() + 1),
                                          figure->getType(), enemySide);
 
             setBoard({figure, enemy});
@@ -76,14 +76,14 @@ TEST_CASE_METHOD(PPathSystem,
         }
 
         WHEN("Enemy in front-left") {
-            auto point = PPoint(4, 1);
-            auto figure = make_shared<PFigure>(point, FigureType::Pawn,
+            auto point = Point(4, 1);
+            auto figure = make_shared<Figure>(point, FigureType::Pawn,
                                                FigurePlayer::Whites, 1);
             auto enemySide = figure->getPlayer() == FigurePlayer::Whites
                     ? FigurePlayer::Blacks
                     : figure->getPlayer();
             auto enemy =
-                    make_shared<PFigure>(PPoint(point.getX() - 1, point.getY() + 1),
+                    make_shared<Figure>(Point(point.getX() - 1, point.getY() + 1),
                                          figure->getType(), enemySide);
 
             setBoard({figure, enemy});

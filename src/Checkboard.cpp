@@ -2,13 +2,13 @@
 // Created by Artem Martus on 06.04.2020.
 //
 
-#include <PCheckboard.h>
-#include <PFigure.h>
-#include <PPoint.h>
-#include <PPathSystem.h>
-#include <PFigureFactory.h>
-#include <list>
+#include <Checkboard.h>
+#include <Figure.h>
+#include <FigureFactory.h>
+#include <PathSystem.h>
+#include <Point.h>
 #include <cstdlib>
+#include <list>
 
 #ifdef _WIN32
 #include <stdexcept>
@@ -16,31 +16,38 @@
 
 using namespace std;
 
-PCheckboard::PCheckboard() {
+Checkboard::Checkboard()
+{
     m_board.clear();
-    m_pathSystem = make_shared<PPathSystem>(m_board);
+    m_pathSystem = make_shared<PathSystem>(m_board);
 }
 
-PCheckboard::~PCheckboard() { destroy(); }
+Checkboard::~Checkboard() { destroy(); }
 
-shared_ptr<PFigure> PCheckboard::at(const shared_ptr<PPoint> &point) const {
-    if (!point || !point->inBounds()) return nullptr;
+shared_ptr<Figure> Checkboard::at(const shared_ptr<Point>& point) const
+{
+    if (!point || !point->inBounds())
+        return nullptr;
 
-    for (const auto &item : m_board)
-        if (*(item->getPoint()) == *point) return item;
+    for (const auto& item : m_board)
+        if (*(item->getPoint()) == *point)
+            return item;
     return nullptr;
 }
 
-bool PCheckboard::prepareMove(const shared_ptr<PPoint> &from,
-                              const shared_ptr<PPoint> &to) {
+bool Checkboard::prepareMove(const shared_ptr<Point>& from,
+    const shared_ptr<Point>& to)
+{
     // recheck checkbox for ally figure
     auto figure = at(from);
-    if (!figure) return false;
+    if (!figure)
+        return false;
 
     if (m_pathSystem->getBoard().size() != m_board.size())
         m_pathSystem->setBoard(m_board);
 
-    if (!m_pathSystem->checkForMovement(figure, to)) return false;
+    if (!m_pathSystem->checkForMovement(figure, to))
+        return false;
 
     performMovement(figure, to);
 
@@ -52,17 +59,19 @@ bool PCheckboard::prepareMove(const shared_ptr<PPoint> &from,
     // after the movement we update board figures if needed and check special
     // morphs for pawns
     if (type == Pawn && to->getY() == endY) {
-        shared_ptr<PFigure> undead;
-        int temp = -1;  // get the most valuable from dead list
-        for (const auto &i : m_deadFigures) {
-            if (i->getPlayer() != side) continue;
+        shared_ptr<Figure> undead;
+        int temp = -1; // get the most valuable from dead list
+        for (const auto& i : m_deadFigures) {
+            if (i->getPlayer() != side)
+                continue;
             if (i->getType() > temp) {
                 undead = i;
                 temp = i->getType();
             }
         }
 
-        if (!undead) undead = PFigureFactory::buildQueen(figure->getPlayer());
+        if (!undead)
+            undead = FigureFactory::buildQueen(figure->getPlayer());
 
         undead->moved();
         undead->revive();
@@ -82,71 +91,78 @@ bool PCheckboard::prepareMove(const shared_ptr<PPoint> &from,
     return true;
 }
 
-bool PCheckboard::onePlayerLeft() const {
+bool Checkboard::onePlayerLeft() const
+{
     auto side = m_board.front()->getPlayer();
-    for (const auto &item : m_board)
-        if (item->getPlayer() != side) return false;
+    for (const auto& item : m_board)
+        if (item->getPlayer() != side)
+            return false;
     return true;
 }
 
-void PCheckboard::initialize() {
-    if (!m_board.empty() || !m_deadFigures.empty()) destroy();
-    auto blacks = PFigureFactory::buildSide(FigurePlayer::Blacks);
-    auto whites = PFigureFactory::buildSide(FigurePlayer::Whites);
+void Checkboard::initialize()
+{
+    if (!m_board.empty() || !m_deadFigures.empty())
+        destroy();
+    auto blacks = FigureFactory::buildSide(FigurePlayer::Blacks);
+    auto whites = FigureFactory::buildSide(FigurePlayer::Whites);
 
     m_board.splice(m_board.end(), whites);
     m_board.splice(m_board.end(), blacks);
 }
 
-void PCheckboard::destroy() {
+void Checkboard::destroy()
+{
     m_board.clear();
     m_deadFigures.clear();
 }
 
 // save-load block
 
-PCheckboard::PCheckboard(const list<shared_ptr<PFigure>> &figures) noexcept {
-    for (const auto &item : figures) {
+Checkboard::Checkboard(const list<shared_ptr<Figure>>& figures) noexcept
+{
+    for (const auto& item : figures) {
         if (item->isAlive())
             m_board.push_back(item);
         else
             m_deadFigures.push_back(item);
     }
-    m_pathSystem = make_shared<PPathSystem>(m_board);
+    m_pathSystem = make_shared<PathSystem>(m_board);
 }
 
-list<shared_ptr<PFigure>> PCheckboard::getAllFigures() const {
-    list<shared_ptr<PFigure>> out;
+list<shared_ptr<Figure>> Checkboard::getAllFigures() const
+{
+    list<shared_ptr<Figure>> out;
     out.insert(out.end(), m_board.begin(), m_board.end());
     out.insert(out.end(), m_deadFigures.begin(), m_deadFigures.end());
 
     return out;
 }
 
-void PCheckboard::setTurn(bool w) { whitesTurn = w; }
+void Checkboard::setTurn(bool w) { whitesTurn = w; }
 
-bool PCheckboard::getWhitesTurn() const { return whitesTurn; }
+bool Checkboard::getWhitesTurn() const { return whitesTurn; }
 
-void PCheckboard::performMovement(const shared_ptr<PFigure> &figure,
-                                  const shared_ptr<PPoint> &to) {
-    if (!figure) throw invalid_argument("Cannot perform movement on nullptr");
+void Checkboard::performMovement(const shared_ptr<Figure>& figure,
+    const shared_ptr<Point>& to)
+{
+    if (!figure)
+        throw invalid_argument("Cannot perform movement on nullptr");
 
     auto possibleFigure = at(to);
     if (figure->isKing() && !possibleFigure
-            /// if we move with a king and
-            /// possibleFigure wasn't found at
-            /// that point,
-            /// but somehow we got into here than it means 99% that it's castling
-            && figure->isReadyForCastling() &&
-            abs((int)to->getX() - figure->getX()) > 1) {
+        /// if we move with a king and
+        /// possibleFigure wasn't found at
+        /// that point,
+        /// but somehow we got into here than it means 99% that it's castling
+        && figure->isReadyForCastling() && abs((int)to->getX() - figure->getX()) > 1) {
         if (to->getX() < figure->getX())
             to->setX(0);
         else
             to->setX(7);
 
-        possibleFigure = at(to);  /// but we recheck if nothing is broken, who knows
-        if (!possibleFigure || !possibleFigure->isReadyForCastling() ||
-                !possibleFigure->isRook())
+        possibleFigure = at(to); /// but we recheck if nothing is broken, who knows
+        if (!possibleFigure || !possibleFigure->isReadyForCastling() || !possibleFigure->isRook())
             throw runtime_error("Something went wrong");
     }
 
@@ -157,8 +173,8 @@ void PCheckboard::performMovement(const shared_ptr<PFigure> &figure,
             m_board.remove(possibleFigure);
             m_deadFigures.push_back(possibleFigure);
 
-        } else {  /// else we castle
-            shared_ptr<PFigure> king, rook;
+        } else { /// else we castle
+            shared_ptr<Figure> king, rook;
             if (possibleFigure->isKing()) {
                 king = possibleFigure;
                 rook = figure;
@@ -167,8 +183,7 @@ void PCheckboard::performMovement(const shared_ptr<PFigure> &figure,
                 rook = possibleFigure;
             }
 
-            int leftCastling =
-                    king->getPoint()->getX() > rook->getPoint()->getX() ? -1 : 1;
+            int leftCastling = king->getPoint()->getX() > rook->getPoint()->getX() ? -1 : 1;
 
             king->getPoint()->setX(king->getPoint()->getX() + 2 * leftCastling);
             rook->getPoint()->setX(king->getPoint()->getX() - 1 * leftCastling);
@@ -183,8 +198,9 @@ void PCheckboard::performMovement(const shared_ptr<PFigure> &figure,
     figure->moved();
 }
 
-multimap<shared_ptr<PFigure>, shared_ptr<PPoint>> PCheckboard::canMoveFrom(
-        FigurePlayer side) const {
+multimap<shared_ptr<Figure>, shared_ptr<Point>> Checkboard::canMoveFrom(
+    FigurePlayer side) const
+{
     if (m_pathSystem->getBoard().size() != m_board.size())
         m_pathSystem->setBoard(m_board);
     return m_pathSystem->getListOfAvailableMoves(side);

@@ -2,21 +2,20 @@
 // Created by Artem Martus on 06.04.2020.
 //
 
-
-#include <PGame.h>
-#include <PViewSide.h>
-#include <PSaver.h>
+#include <Game.h>
+#include <Saver.h>
+#include <ViewSide.h>
 
 #include <memory>
 
 using std::make_shared;
 
-int main() {
-    auto view = make_shared<PViewSide>();  // this class is responsible for
+int main()
+{
+    auto view = make_shared<ViewSide>(); // this class is responsible for
     // rendering and input, aka 'view' side
-    auto saver =
-            make_shared<PSaver>("./saveFile.txt");  // this class operates with files
-    PGame game(view, saver);  // this is our controller which composes view and
+    auto saver = make_shared<Saver>("./saveFile.txt"); // this class operates with files
+    Game game(view, saver); // this is our controller which composes view and
     // business logic together
     bool whiteWon = game.run();
     if (whiteWon) {

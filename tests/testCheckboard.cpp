@@ -4,7 +4,7 @@
 
 #include "Tests.hpp"
 
-TEST_CASE_METHOD(PCheckboard, "Test if checkboard properly initialized",
+TEST_CASE_METHOD(Checkboard, "Test if checkboard properly initialized",
                  "[checkboard-initialize]") {
     WHEN("We run initialize method") {
         initialize();
@@ -105,27 +105,27 @@ TEST_CASE_METHOD(PCheckboard, "Test if checkboard properly initialized",
         }
 
         THEN("If we try to reach existing figure we get it") {
-            auto blackPawnSpot = make_shared<PPoint>(0, 6);
+            auto blackPawnSpot = make_shared<Point>(0, 6);
             auto blackPawn = at(blackPawnSpot);
             REQUIRE(blackPawn != nullptr);
         }
 
         THEN("If we try to reach non-existing figure we don't get it") {
-            auto uselessSpot = make_shared<PPoint>(4, 4);
+            auto uselessSpot = make_shared<Point>(4, 4);
             auto nothing = at(uselessSpot);
             REQUIRE(nothing == nullptr);
         }
     }
     WHEN("Pawn reaches end of a board") {
         auto allySide = Blacks, enemySide = Whites;
-        m_board.push_back(PFigureFactory::buildKing(allySide));
-        m_board.push_back(PFigureFactory::buildKing(enemySide));
+        m_board.push_back(FigureFactory::buildKing(allySide));
+        m_board.push_back(FigureFactory::buildKing(enemySide));
 
-        auto pawn = make_shared<PFigure>(PPoint(2, 1), Pawn, allySide);
-        auto destinationPoint = make_shared<PPoint>(2, 0);
+        auto pawn = make_shared<Figure>(Point(2, 1), Pawn, allySide);
+        auto destinationPoint = make_shared<Point>(2, 0);
         m_board.push_back(pawn);
-        auto deadQueen = make_shared<PFigure>(PPoint(1, 1), Queen, allySide);
-        auto deadRook = make_shared<PFigure>(PPoint(1, 2), Rook, allySide);
+        auto deadQueen = make_shared<Figure>(Point(1, 1), Queen, allySide);
+        auto deadRook = make_shared<Figure>(Point(1, 2), Rook, allySide);
 
         deadQueen->isCapturedBy(pawn);
         deadRook->isCapturedBy(pawn);
@@ -152,7 +152,7 @@ TEST_CASE_METHOD(PCheckboard, "Test if checkboard properly initialized",
         }
         THEN("we get a queen if only enemies are dead") {
             m_deadFigures.push_back(
-                        make_shared<PFigure>(PPoint(1, 1), Knight, enemySide));
+                        make_shared<Figure>(Point(1, 1), Knight, enemySide));
             REQUIRE(prepareMove(pawn->getPoint(), destinationPoint));
             auto newCreature = m_board.back();
             REQUIRE_FALSE(pawn->isAlive());
@@ -174,12 +174,12 @@ TEST_CASE_METHOD(PCheckboard, "Test if checkboard properly initialized",
 
     WHEN("A pawn captures enemy at the end of a map") {
         auto allySide = Blacks, enemySide = Whites;
-        m_board.push_back(PFigureFactory::buildKing(allySide));
-        m_board.push_back(PFigureFactory::buildKing(enemySide));
+        m_board.push_back(FigureFactory::buildKing(allySide));
+        m_board.push_back(FigureFactory::buildKing(enemySide));
 
-        auto pawn = make_shared<PFigure>(PPoint(2, 1), Pawn, allySide);
-        auto destinationPoint = make_shared<PPoint>(1, 0);
-        auto enemyRook = make_shared<PFigure>(*destinationPoint, Rook, enemySide);
+        auto pawn = make_shared<Figure>(Point(2, 1), Pawn, allySide);
+        auto destinationPoint = make_shared<Point>(1, 0);
+        auto enemyRook = make_shared<Figure>(*destinationPoint, Rook, enemySide);
 
         m_board.push_back(enemyRook);
         m_board.push_back(pawn);

@@ -6,31 +6,31 @@
 
 #include <memory>
 
-class PPoint;
+class Point;
 
 enum FigureType : int { Pawn = 0, Rook, Knight, Bishop, Queen, King };
 
 enum FigurePlayer : int { Whites = 0, Blacks };
 
-/// PFigure class
-class PFigure {
+/// Figure class
+class Figure {
 protected:
-    std::shared_ptr<PPoint> position;
-    std::shared_ptr<PFigure> killedBy;
+    std::shared_ptr<Point> position;
+    std::shared_ptr<Figure> killedBy;
     FigurePlayer player;
     FigureType type;
     unsigned int movesMade;
 
 public:
-    PFigure(const PPoint& point, FigureType type, FigurePlayer player,
+    Figure(const Point& point, FigureType type, FigurePlayer player,
             unsigned int movesMade = 0,
-            std::shared_ptr<PFigure> killedBy = nullptr) noexcept;
+            std::shared_ptr<Figure> killedBy = nullptr) noexcept;
 
-    PFigure(const PFigure& figure) noexcept;
+    Figure(const Figure& figure) noexcept;
 
-    ~PFigure();
+    ~Figure();
 
-    void isCapturedBy(const std::shared_ptr<PFigure>& by);
+    void isCapturedBy(const std::shared_ptr<Figure>& by);
 
     void revive();
 
@@ -56,19 +56,19 @@ public:
 
     FigurePlayer getPlayer() const;
 
-    std::shared_ptr<PPoint> getPoint() const;
+    std::shared_ptr<Point> getPoint() const;
 
     int getX() const;  // point alias
 
     int getY() const;  // point alias
 
-    std::shared_ptr<PFigure> getKilledBy() const;
+    std::shared_ptr<Figure> getKilledBy() const;
 
     void moved();
 
     unsigned int getMovesCount() const;
 
-    bool operator==(const PFigure& figure) const;
+    bool operator==(const Figure& figure) const;
 
-    bool operator!=(const PFigure& figure) const;
+    bool operator!=(const Figure& figure) const;
 };
